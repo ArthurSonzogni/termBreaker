@@ -4,19 +4,23 @@ find_package(docopt CONFIG)
 
 # Generic test that uses conan libs
 add_executable(intro main.cpp)
-target_link_libraries(
-  intro
+target_link_libraries(intro
+  PRIVATE box2d
+  PRIVATE docopt::docopt
+  PRIVATE fmt::fmt
+  PRIVATE ftxui::component
+  PRIVATE ftxui::dom
+  PRIVATE ftxui::screen
   PRIVATE project_options
-          project_warnings
-          docopt::docopt
-          fmt::fmt
-          spdlog::spdlog)
+  PRIVATE project_warnings
+  PRIVATE spdlog::spdlog
+)
 
-target_link_system_libraries(
-  intro
-  PRIVATE
-  ftxui::screen
-  ftxui::dom
-  ftxui::component)
+target_link_system_libraries(intro
+  PRIVATE ftxui::screen
+  PRIVATE ftxui::dom
+  PRIVATE ftxui::component
+  PRIVATE box2d
+)
 
 target_include_directories(intro PRIVATE "${CMAKE_BINARY_DIR}/configured_files/include")
