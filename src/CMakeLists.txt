@@ -3,7 +3,15 @@ find_package(spdlog CONFIG)
 find_package(docopt CONFIG)
 
 # Generic test that uses conan libs
-add_executable(intro main.cpp)
+add_executable(intro
+  main.cpp
+  ball.hpp
+  ball.cpp
+  brick.hpp
+  brick.cpp
+  contact_listener.hpp
+  contact_listener.cpp
+)
 target_link_libraries(intro
   PRIVATE box2d
   PRIVATE docopt::docopt
