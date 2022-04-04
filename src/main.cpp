@@ -84,7 +84,7 @@ int main() {
       const int mouse_x = (event.mouse().x - 1) * 2;
       const int mouse_y = (event.mouse().y - 1) * 4;
       circles.push_back(std::make_unique<CircleBase>(world, mouse_x, mouse_y,
-                                                     3.F));  // NOLINT
+                                                     6.F));  // NOLINT
 
       return true;
     };
