@@ -17,7 +17,7 @@ class CircleBase {
 
  private:
   b2BodyDef bodyDef;
-  b2Body* body;
+  b2Body* body = nullptr;
   b2CircleShape dynamicBox;
   b2FixtureDef fixtureDef;
   ftxui::Color color;

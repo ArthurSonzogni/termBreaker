@@ -20,7 +20,7 @@ class BrickBase {
   uint8_t color_hue_ = 0;
   uint8_t color_value_ = 0;
   b2BodyDef bodyDef;
-  b2Body* body;
+  b2Body* body = nullptr;
   b2PolygonShape dynamicBox;
   b2FixtureDef fixtureDef;
 };
