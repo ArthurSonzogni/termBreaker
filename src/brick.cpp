@@ -1,4 +1,5 @@
 #include "brick.hpp"
+#include <box2d/box2d.h>
 
 namespace {
 void DrawRectangle(ftxui::Canvas& c,
@@ -7,10 +8,7 @@ void DrawRectangle(ftxui::Canvas& c,
                    int y_min,
                    int y_max,
                    ftxui::Color color) {
-
-  auto style = [color](ftxui::Pixel& pixel) {
-    pixel.background_color = color;
-  };
+  auto style = [color](ftxui::Pixel& pixel) { pixel.background_color = color; };
   for (int y = y_min; y <= y_max; y += 4) {
     for (int x = x_min; x <= x_max; x += 2) {
       c.DrawPoint(x, y, false, style);
@@ -25,13 +23,10 @@ BrickBase::BrickBase(b2World& world,
                      float y,
                      int half_width,
                      int half_height)
-  :
-    half_width_(half_width),
-    half_height_(half_height)
-{
+    : world_(world), half_width_(half_width), half_height_(half_height) {
   bodyDef.type = b2_staticBody;
-  bodyDef.position.Set(x, y);          // NOLINT
-  body = world.CreateBody(&bodyDef);
+  bodyDef.position.Set(x, y);  // NOLINT
+  body = world_.CreateBody(&bodyDef);
   body->GetUserData().pointer = reinterpret_cast<uintptr_t>(this);  // NOLINT
   dynamicBox.SetAsBox(static_cast<float>(half_width_),
                       static_cast<float>(half_height_));
@@ -41,13 +36,17 @@ BrickBase::BrickBase(b2World& world,
   body->CreateFixture(&fixtureDef);
 
   static uint8_t hue = 0;
-  hue += 50;                                 // NOLINT
+  hue += 50;  // NOLINT
   color_hue_ = hue;
 }
 
+BrickBase::~BrickBase() {
+  world_.DestroyBody(body);
+}
+
 void BrickBase::Step() {
-  if (color_value_ < 200)                            // NOLINT
-    color_value_ += 10;                               // NOLINT
+  if (color_value_ < 200)  // NOLINT
+    color_value_ += 10;    // NOLINT
 };
 
 void BrickBase::OnContact() {

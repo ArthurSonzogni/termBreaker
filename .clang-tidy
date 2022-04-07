@@ -3,24 +3,19 @@ Checks: "*,
         -abseil-*,
         -altera-*,
         -android-*,
+        -bugprone-easily-swappable-parameters,
+        -bugprone-suspicious-include,
+        -cppcoreguidelines-non-private-member-variables-in-classes,
         -fuchsia-*,
         -google-*,
         -llvm*,
+        -misc-non-private-member-variables-in-classes,
         -modernize-use-trailing-return-type,
-        -zircon-*,
+        -readability-avoid-const-params-in-decls,
         -readability-else-after-return,
         -readability-static-accessed-through-instance,
-        -readability-avoid-const-params-in-decls,
-        -cppcoreguidelines-non-private-member-variables-in-classes,
-        -misc-non-private-member-variables-in-classes,
-        -bugprone-easily-swappable-parameters,
+        -zircon-*,
 "
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 FormatStyle:     none
-
-
-
-
-
-

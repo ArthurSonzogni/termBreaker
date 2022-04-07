@@ -9,17 +9,27 @@ set(CMAKE_CXX_STANDARD 20)
 # when compiling with PCH enabled
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Setup dependencies:
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
+set(FETCHCONTENT_QUIET FALSE)
+
+FetchContent_Declare(_project_options
+  URL https://github.com/aminya/project_options/archive/refs/tags/v0.20.0.zip
+  URL_HASH SHA1=97b2d19b4b713e3fd2e6a6e93dd3622452a3195a
+  GIT_PROGRESS ON
+)
 
 FetchContent_Declare(ftxui
   GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
   GIT_TAG aebde943523bb75da79ba45eb5b2e88d39a620e1
+  GIT_PROGRESS ON
 )
 
 FetchContent_Declare(box2d
   GIT_REPOSITORY https://github.com/erincatto/box2d.git
   GIT_TAG v2.4.1
+  GIT_PROGRESS ON
 )
 
 FetchContent_GetProperties(ftxui)
@@ -38,23 +48,17 @@ if(NOT box2d_POPULATED)
   add_subdirectory(${box2d_SOURCE_DIR} ${box2d_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+FetchContent_MakeAvailable(_project_options)
+include(${_project_options_SOURCE_DIR}/Index.cmake)
+
 # Note: by default ENABLE_DEVELOPER_MODE is True
 # This means that all analysis (sanitizers, static analysis)
 # is enabled and all warnings are treated as errors
 # if you want to switch this behavior, change TRUE to FALSE
-set(ENABLE_DEVELOPER_MODE
-    TRUE
-    CACHE BOOL "Enable 'developer mode'")
+set(ENABLE_DEVELOPER_MODE TRUE CACHE BOOL "Enable 'developer mode'")
 
 # Change this to false if you want to disable warnings_as_errors in developer mode
 set(OPT_WARNINGS_AS_ERRORS_DEVELOPER_DEFAULT TRUE)
-
-# Add project_options v0.17.0
-# https://github.com/cpp-best-practices/project_options
-FetchContent_Declare(_project_options
-                     URL https://github.com/cpp-best-practices/project_options/archive/refs/tags/v0.17.0.zip)
-FetchContent_MakeAvailable(_project_options)
-include(${_project_options_SOURCE_DIR}/Index.cmake)
 
 # uncomment to enable vcpkg:
 # # Setup vcpkg - should be called before defining project()
@@ -68,14 +72,8 @@ project(
   HOMEPAGE_URL "https://github.com/ArthurSonzogni/termRider"
   LANGUAGES CXX C)
 
-set(GIT_SHA
-    "Unknown"
-    CACHE STRING "SHA this build was generated from")
-string(
-  SUBSTRING "${GIT_SHA}"
-            0
-            8
-            GIT_SHORT_SHA)
+set(GIT_SHA "Unknown" CACHE STRING "SHA this build was generated from")
+string(SUBSTRING "${GIT_SHA}" 0 8 GIT_SHORT_SHA)
 
 get_property(BUILDING_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(BUILDING_MULTI_CONFIG)
@@ -101,30 +99,12 @@ endif()
 
 include(${_project_options_SOURCE_DIR}/src/DynamicProjectOptions.cmake)
 
-# defaulted_project_options sets recommended defaults and provides user and developer
-# modes and full GUI support for choosing options at configure time
-
-# for more flexibility, look into project_options() macro
-
-# Any default can be overridden
-# set(<feature_name>_DEFAULT <value>) - set default for both user and developer modes
-# set(<feature_name>_DEVELOPER_DEFAULT <value>) - set default for developer mode
-# set(<feature_name>_USER_DEFAULT <value>) - set default for user mode
 
 # Initialize project_options variable related to this project
 # This overwrites `project_options` and sets `project_warnings`
 # uncomment the options to enable them:
 dynamic_project_options(
-  # Note: PCH is disabled by default in developer mode because these headers become
-  # globally included and they can mask other errors
-  PCH_HEADERS
-  <vector>
-  <string> # This is a list of headers to pre-compile, here are some common ones
-  # CONAN_OPTIONS    # Extra options to pass to conan
-  # MSVC_WARNINGS    # Override the defaults for the MSVC warnings
-  # CLANG_WARNINGS   # Override the defaults for the CLANG warnings
-  # GCC_WARNINGS     # Override the defaults for the GCC warnings
-  # CPPCHECK_OPTIONS # Override the defaults for CppCheck
+  PCH_HEADERS <vector> <string>
 )
 
 target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
@@ -138,7 +118,6 @@ add_subdirectory(src)
 # Adding the tests:
 option(ENABLE_TESTING "Enable the tests" ON)
 if(ENABLE_TESTING)
-  enable_testing()
   message("Building Tests. Be sure to check out test/constexpr_tests for constexpr
 testing")
   add_subdirectory(test)
@@ -154,7 +133,8 @@ endif()
 # so that it behaves well with MSVC's debugger, and we can run the target from visual studio
 if(MSVC)
   get_all_targets(all_targets)
-  set_target_properties(${all_targets} PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=$(VC_ExecutablePath_x64);%PATH%")
+  set_target_properties(${all_targets}
+    PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=$(VC_ExecutablePath_x64);%PATH%")
 endif()
 
 # set the startup project for the "play" button in MSVC

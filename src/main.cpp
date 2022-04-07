@@ -1,4 +1,5 @@
 #include <box2d/box2d.h>
+#include <algorithm>
 #include <cmath>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>
@@ -23,31 +24,22 @@ int main() {
   using namespace ftxui;
 
   // Define the gravity vector.
-  b2Vec2 gravity(0.0f, 70.0f);  // NOLINT
+  b2Vec2 gravity(0.0f, 140.0f);  // NOLINT
   b2World world(gravity);
 
   ContactListener contact_listener;
   world.SetContactListener(&contact_listener);
 
-  // Call the body factory which allocates memory for the ground body
-  // from a pool and creates the ground box shape (also from a pool).
-  // The body is also added to the world.
-  b2BodyDef groundBodyDef;
-  groundBodyDef.position.Set(75.f, 148.0f);  // NOLINT
-  b2Body* groundBody = world.CreateBody(&groundBodyDef);
-  b2PolygonShape groundBox;
-  groundBox.SetAsBox(75.0f, 1.0f);              // NOLINT
-  groundBody->CreateFixture(&groundBox, 0.0f);  // NOLINT
-
   using Circle = std::unique_ptr<CircleBase>;
-
   std::vector<Circle> circles;
 
   std::vector<std::unique_ptr<BrickBase>> bricks;
-  bricks.push_back(std::make_unique<BrickBase>(world, 100, 50, 20, 20));  // NOLINT
-  bricks.push_back(std::make_unique<BrickBase>(world, 100, 80, 10, 10));  // NOLINT
-  bricks.push_back(
-      std::make_unique<BrickBase>(world, 75, 146, 100, 6));  // NOLINT
+  for (int y = 30; y < 150; y += 20) {    // NOLINT
+    for (int x = 30; x < 150; x += 20) {  // NOLINT
+      bricks.push_back(
+          std::make_unique<BrickBase>(world, x, y, 5, 5));  // NOLINT
+    }
+  }
 
   // A triangle following the mouse, using braille characters.
   auto renderer = Renderer([&] {
@@ -77,6 +69,13 @@ int main() {
       for (auto& brick : bricks) {
         brick->Step();
       }
+
+      auto counter_null = [](const std::unique_ptr<BrickBase>& brick) {
+        return brick->counter() == 0;
+      };
+      bricks.erase(std::remove_if(bricks.begin(), bricks.end(), counter_null),
+                   bricks.end());
+
       return true;
     }
 
@@ -84,7 +83,7 @@ int main() {
       const int mouse_x = (event.mouse().x - 1) * 2;
       const int mouse_y = (event.mouse().y - 1) * 4;
       circles.push_back(std::make_unique<CircleBase>(world, mouse_x, mouse_y,
-                                                     6.F));  // NOLINT
+                                                     3.F));  // NOLINT
 
       return true;
     };

@@ -8,13 +8,16 @@
 class BrickBase {
  public:
   BrickBase(b2World& world, float x, float y, int half_width, int half_height);
+  ~BrickBase();
 
   void OnContact();
   void Step();
   void Draw(ftxui::Canvas& c) const;
+  int counter() const { return counter_; }
 
  private:
-  int counter_ = 100;
+  b2World& world_;
+  int counter_ = 10;
   int half_width_;
   int half_height_;
   uint8_t color_hue_ = 0;

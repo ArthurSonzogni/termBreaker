@@ -3,7 +3,7 @@
 CircleBase::CircleBase(b2World& world, float x, float y, float radius) {
   bodyDef.type = b2_dynamicBody;
   bodyDef.position.Set(x, y);          // NOLINT
-  bodyDef.linearVelocity.Set(100, 0);  // NOLINT
+  bodyDef.linearVelocity.Set(50, 50);  // NOLINT
   body = world.CreateBody(&bodyDef);
   dynamicBox.m_radius = radius;
   fixtureDef.shape = &dynamicBox;
