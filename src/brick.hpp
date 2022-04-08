@@ -2,8 +2,9 @@
 #define LINE_RIDER_BRICK_HPP
 
 #include <box2d/box2d.h>
-#include <ftxui/screen/color.hpp>
 #include <ftxui/dom/canvas.hpp>
+#include <ftxui/screen/color.hpp>
+#include <memory>
 
 class BrickBase {
  public:
@@ -27,5 +28,7 @@ class BrickBase {
   b2PolygonShape dynamicBox;
   b2FixtureDef fixtureDef;
 };
+
+using Brick = std::unique_ptr<BrickBase>;
 
 #endif  // LINE_RIDER_BRICK_HPP

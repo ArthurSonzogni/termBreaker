@@ -2,12 +2,13 @@
 #define LINE_RIDER_BALL_HPP
 
 #include <box2d/box2d.h>
-#include <ftxui/screen/color.hpp>
 #include <ftxui/dom/canvas.hpp>
+#include <ftxui/screen/color.hpp>
+#include <memory>
 
-class CircleBase {
+class BallBase {
  public:
-  CircleBase(b2World& world, float x, float y, float radius);
+  BallBase(b2World& world, float x, float y, float radius);
 
   float x() const;
   float y() const;
@@ -22,5 +23,7 @@ class CircleBase {
   b2FixtureDef fixtureDef;
   ftxui::Color color;
 };
+
+using Ball = std::unique_ptr<BallBase>;
 
 #endif  // LINE_RIDER_BALL_HPP
