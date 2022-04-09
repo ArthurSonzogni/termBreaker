@@ -8,7 +8,7 @@
 
 class BallBase {
  public:
-  BallBase(b2World& world, float x, float y, float radius);
+  BallBase(b2World& world, b2Vec2 position, b2Vec2 speed, float radius);
 
   float x() const;
   float y() const;

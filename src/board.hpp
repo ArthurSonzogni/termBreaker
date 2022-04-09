@@ -26,11 +26,18 @@ class Board {
   void Draw(ftxui::Canvas& c) const;
 
  private:
+  static b2Vec2 ShootPosition();
+  b2Vec2 ShootSpeed() const;
+
   b2World world_;
   ContactListener contact_listener_;
 
   std::vector<Ball> balls_;
   std::vector<Brick> bricks_;
+
+  int mouse_x_ = 0;
+  int mouse_y_ = 0;
+  int step_ = 0;
 };
 
 #endif  // BOARD_HPP

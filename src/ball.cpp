@@ -1,15 +1,16 @@
 #include "ball.hpp"
 
-BallBase::BallBase(b2World& world, float x, float y, float radius) {
+BallBase::BallBase(b2World& world, b2Vec2 position, b2Vec2 speed,
+                   float radius) {
   bodyDef.type = b2_dynamicBody;
-  bodyDef.position.Set(x, y);          // NOLINT
-  bodyDef.linearVelocity.Set(50, 50);  // NOLINT
+  bodyDef.position = position;
+  bodyDef.linearVelocity = speed;
   body = world.CreateBody(&bodyDef);
   dynamicBox.m_radius = radius;
   fixtureDef.shape = &dynamicBox;
   fixtureDef.density = 1.0f;       // NOLINT
-  fixtureDef.friction = 1.0f;      // NOLINT
-  fixtureDef.restitution = 0.97F;  // NOLINT
+  fixtureDef.friction = 0.5f;      // NOLINT
+  fixtureDef.restitution = 0.9F;  // NOLINT
   body->CreateFixture(&fixtureDef);
 
   static uint8_t hue = 0;
