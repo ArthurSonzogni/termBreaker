@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # Not ideal to use this global variable, but necessary to make sure
 # that tooling and projects use the same version
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 # strongly encouraged to enable this globally to avoid conflicts between
 # -Wpedantic being enabled and -std=c++20 and -std=gnu++20 for example
@@ -37,9 +37,9 @@ if(NOT ftxui_POPULATED)
   FetchContent_Populate(ftxui)
   add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
- 
-FetchContent_GetProperties(box2d) 
-if(NOT box2d_POPULATED) 
+
+FetchContent_GetProperties(box2d)
+if(NOT box2d_POPULATED)
   set(BOX2D_BUILD_UNIT_TESTS OFF CACHE INTERNAL "")
   set(BOX2D_BUILD_TESTBED OFF CACHE INTERNAL "")
   set(BOX2D_BUILD_DOCS OFF CACHE INTERNAL "")
@@ -59,10 +59,6 @@ set(ENABLE_DEVELOPER_MODE TRUE CACHE BOOL "Enable 'developer mode'")
 
 # Change this to false if you want to disable warnings_as_errors in developer mode
 set(OPT_WARNINGS_AS_ERRORS_DEVELOPER_DEFAULT TRUE)
-
-# uncomment to enable vcpkg:
-# # Setup vcpkg - should be called before defining project()
-# run_vcpkg()
 
 # Set the project name and language
 project(
@@ -103,11 +99,15 @@ include(${_project_options_SOURCE_DIR}/src/DynamicProjectOptions.cmake)
 # Initialize project_options variable related to this project
 # This overwrites `project_options` and sets `project_warnings`
 # uncomment the options to enable them:
-dynamic_project_options(
-  PCH_HEADERS <vector> <string>
-)
+#if (EMSCRIPTEN)
+  #dynamic_project_options(
+    #PCH_HEADERS <vector> <string>
+  #)
+#else() 
+  #project_options()
+#endif()
 
-target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
+#target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
 
 add_executable(termBreaker
   src/ball.cpp
@@ -118,6 +118,8 @@ add_executable(termBreaker
   src/brick.hpp
   src/contact_listener.cpp
   src/contact_listener.hpp
+  src/intro.cpp
+  src/intro.cpp
   src/main.cpp
 )
 target_include_directories(termBreaker
@@ -128,8 +130,8 @@ target_link_system_libraries(termBreaker
   PRIVATE ftxui::component
   PRIVATE ftxui::dom
   PRIVATE ftxui::screen
-  PRIVATE project_options
-  PRIVATE project_warnings
+  #PRIVATE project_options
+  #PRIVATE project_warnings
 )
 
 # Adding the tests:
@@ -145,6 +147,24 @@ if(ENABLE_FUZZING)
   message("Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html")
   add_subdirectory(fuzz_test)
 endif()
+
+if (EMSCRIPTEN)
+  set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+  set(ENABLE_DEVELOPER_MODE FALSE CACHE BOOL "Enable 'developer mode'")
+  string(APPEND CMAKE_CXX_FLAGS " -s USE_PTHREADS")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -s ASYNCIFY")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -s PROXY_TO_PTHREAD")
+
+  # 32MB should be enough to run all the examples, in debug mode.
+  target_link_options(component PUBLIC "SHELL: -s TOTAL_MEMORY=33554432")
+  target_link_options(component PUBLIC "SHELL: -s ASSERTIONS=1")
+  foreach(file
+      "index.html"
+      "run_webassembly.py")
+    configure_file(${file} ${file})
+  endforeach(file)
+endif()
+
 
 # If MSVC is being used, and ASAN is enabled, we need to set the debugger environment
 # so that it behaves well with MSVC's debugger, and we can run the target from visual studio

@@ -9,6 +9,8 @@
 class BallBase {
  public:
   BallBase(b2World& world, b2Vec2 position, b2Vec2 speed, float radius);
+  ~BallBase();
+  
 
   float x() const;
   float y() const;
@@ -17,11 +19,12 @@ class BallBase {
   void Draw(ftxui::Canvas& c) const;
 
  private:
-  b2BodyDef bodyDef;
-  b2Body* body = nullptr;
-  b2CircleShape dynamicBox;
-  b2FixtureDef fixtureDef;
-  ftxui::Color color;
+  b2World& world_;
+  b2BodyDef body_def_;
+  b2Body* body_ = nullptr;
+  b2CircleShape dynamic_box_;
+  b2FixtureDef fixture_def_;
+  ftxui::Color color_;
 };
 
 using Ball = std::unique_ptr<BallBase>;

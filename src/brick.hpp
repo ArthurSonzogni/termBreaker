@@ -8,7 +8,12 @@
 
 class BrickBase {
  public:
-  BrickBase(b2World& world, float x, float y, int half_width, int half_height);
+  BrickBase(b2World& world,
+            int x,
+            int y,
+            int half_width,
+            int half_height,
+            int counter);
   ~BrickBase();
 
   void OnContact();
@@ -16,17 +21,22 @@ class BrickBase {
   void Draw(ftxui::Canvas& c) const;
   int counter() const { return counter_; }
 
+  void MoveUp();
+  int y() const { return y_; }
+
  private:
   b2World& world_;
-  int counter_ = 10;
+  int x_;
+  int y_;
   int half_width_;
   int half_height_;
   uint8_t color_hue_ = 0;
   uint8_t color_value_ = 0;
-  b2BodyDef bodyDef;
-  b2Body* body = nullptr;
-  b2PolygonShape dynamicBox;
-  b2FixtureDef fixtureDef;
+  int counter_;
+  b2BodyDef bodyDef_;
+  b2Body* body_ = nullptr;
+  b2PolygonShape dynamicBox_;
+  b2FixtureDef fixtureDef_;
 };
 
 using Brick = std::unique_ptr<BrickBase>;

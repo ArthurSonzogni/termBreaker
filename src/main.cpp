@@ -5,11 +5,16 @@
 #include <iostream>
 #include <thread>
 #include "board.hpp"
+#include "intro.hpp"
 
 int main() {
   using namespace ftxui;
 
-  Board board;
+  term_breaker::Intro();
+
+  BoardConfig config;
+  config.balls = 10; // NOLINT
+  Board board(config);
 
   // A triangle following the mouse, using braille characters.
   auto renderer = Renderer([&] {
