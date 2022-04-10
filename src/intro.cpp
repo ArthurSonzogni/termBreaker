@@ -68,8 +68,7 @@ ftxui::Component Intro(bool* enable_audio, std::function<void()> quit) {
   });
 #else
   *enable_audio = false;
-  auto buttons = Button("Start", screen.ExitLoopClosure(),
-                        ButtonOption::Animated(Color::Yellow));
+  auto buttons = Button("Start", quit, ButtonOption::Animated(Color::Yellow));
 #endif  // ENABLE_AUDIO
 
   return buttons | IntroDecorator;
