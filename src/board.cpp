@@ -200,12 +200,15 @@ ftxui::Element Board::Draw() const {
 
   DrawShootingLine(c);
 
+  std::string balls_remaining = std::to_string(remaining_balls_to_shoot_) +
+                                "/" + std::to_string(config_.balls);
+
   auto frame = hbox({
       canvas(std::move(c)),
       separator(),
       vbox({
           window(text("bricks:"), text(std::to_string(bricks_.size()))),
-          window(text("balls:"), text(std::to_string(balls_.size()))),
+          window(text("balls:"), text(balls_remaining)),
       }),
   });
 

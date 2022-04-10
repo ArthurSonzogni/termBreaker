@@ -1,9 +1,19 @@
 #ifndef TERM_BREAKER_GAME_HPP
 #define TERM_BREAKER_GAME_HPP
 
+#include <ftxui/component/component.hpp>
+#include <ftxui/component/screen_interactive.hpp>
+#include <ftxui/dom/elements.hpp>
+#include <functional>
+
 namespace term_breaker {
+
 void StartGame(bool enable_audio);
-}
+ftxui::Component WinScreen(int coins, std::function<void()> continuation);
+ftxui::Component MainMenu(std::function<void()> play,
+                          std::function<void()> quit);
+
+}  // namespace term_breaker
 
 #endif  // TERM_BREAKER_GAME_HPP
 

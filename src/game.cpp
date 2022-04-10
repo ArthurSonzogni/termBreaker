@@ -1,3 +1,5 @@
+#include "game.hpp"
+
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/event.hpp>
 #include <ftxui/component/screen_interactive.hpp>
@@ -13,25 +15,14 @@
 
 namespace term_breaker {
 
-void StartGame(bool enable_audio) {
-  (void)enable_audio;
-  using namespace ftxui;
-#ifdef ENABLE_AUDIO
-  smk::Audio audio;  // Initialize OpenAL.
-#endif
+using namespace ftxui;
 
-  if (enable_audio)
-    term_breaker::LoadResources();
+namespace {
+void Play(BoardConfig config) {
+  auto screen = ScreenInteractive::Fullscreen();
 
-  BoardConfig config;
-  config.balls = 10;  // NOLINT
   Board board(config);
-
-  // A triangle following the mouse, using braille characters.
-  auto renderer = Renderer([&] {
-    return board.Draw();
-  });
-
+  auto renderer = Renderer([&] { return board.Draw(); });
   renderer |= CatchEvent([&](Event event) {  // NOLINT
     if (event == Event::Custom) {
       board.Step();
@@ -41,23 +32,59 @@ void StartGame(bool enable_audio) {
     return board.OnEvent(event);
   });
 
-  auto screen = ScreenInteractive::Fullscreen();
+
   // This thread exists to make sure that the event queue has an event to
-  // process at approximately a rate of 30 FPS
+  // process at approximately a rate of 60 FPS
   std::atomic<bool> refresh_ui_continue = true;
   std::thread refresh_ui([&] {
     while (refresh_ui_continue) {
       using namespace std::chrono_literals;
-      std::this_thread::sleep_for(1.0s / 60.0);  // NOLINT magic numbers
-      screen.PostEvent(ftxui::Event::Custom);
+      const auto refresh_time = 1.0s / 60.0;
+      std::this_thread::sleep_for(refresh_time);
+      screen.PostEvent(Event::Custom);
     }
   });
   screen.Loop(renderer);
 
   refresh_ui_continue = false;
   refresh_ui.join();
+}
 
-  term_breaker::UnloadResources();
+void Win(int coins) {
+  auto screen = ScreenInteractive::Fullscreen();
+  auto component = WinScreen(coins, screen.ExitLoopClosure());
+  screen.Loop(component);
+}
+
+void MainMenuScreen() {
+  auto screen = ScreenInteractive::Fullscreen();
+  auto menu = MainMenu([] {}, screen.ExitLoopClosure());
+  screen.Loop(menu);
+}
+
+} // namespace
+
+void StartGame(bool enable_audio) {
+#ifdef ENABLE_AUDIO
+  smk::Audio audio;  // Initialize OpenAL.
+#else
+  (void)enable_audio;
+#endif
+
+  if (enable_audio)
+    LoadResources();
+
+  BoardConfig config;
+  config.balls = 10;  // NOLINT
+
+  while(true) {
+    Win(10);
+    Play(config);
+    MainMenuScreen();
+  }
+
+
+  UnloadResources();
 }
 }  // namespace term_breaker
 

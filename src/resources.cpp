@@ -110,7 +110,7 @@ void PlayBounceSound(float volume) {
 namespace term_breaker {
 void LoadResources() {}
 void UnloadResources() {}
-void PlayBounceSound(float volume) {}
+void PlayBounceSound(float /*volume*/) {}
 void PlayBackgroundMusic() {}
 }  // namespace term_breaker
 

@@ -127,6 +127,8 @@ add_executable(termBreaker
   src/main.cpp
   src/resources.cpp 
   src/resources.hpp 
+  src/win.cpp
+  src/main_menu.cpp
 )
 target_include_directories(termBreaker
   PRIVATE src
@@ -201,7 +203,7 @@ if(ENABLE_FUZZING)
 endif()
 
 if (EMSCRIPTEN)
-  target_link_options(termBreaker PUBLIC "SHELL: -s TOTAL_MEMORY=134217728")
+  target_link_options(termBreaker PUBLIC "SHELL: -s TOTAL_MEMORY=67108864")
 
   foreach(file
       "index.html"
