@@ -73,6 +73,14 @@ if(NOT box2d_POPULATED)
   add_subdirectory(${box2d_SOURCE_DIR} ${box2d_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+if (EMSCRIPTEN)
+  set(ENABLE_TESTING CACHE INTERNAL "")
+  set(ENABLE_DEVELOPER_MODE FALSE CACHE BOOL "Enable 'developer mode'")
+  string(APPEND CMAKE_CXX_FLAGS " -s USE_PTHREADS")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -s ASYNCIFY")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -s PROXY_TO_PTHREAD")
+endif()
+
 if (ENABLE_AUDIO)
   FetchContent_GetProperties(smk)
   if(NOT smk_POPULATED)
@@ -124,6 +132,7 @@ target_include_directories(termBreaker
   PRIVATE src
 )
 target_link_system_libraries(termBreaker
+  PRIVATE Threads::Threads
   PRIVATE ftxui::component
   PRIVATE ftxui::dom
   PRIVATE ftxui::screen
@@ -192,50 +201,21 @@ if(ENABLE_FUZZING)
 endif()
 
 if (EMSCRIPTEN)
-  set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
-  set(ENABLE_DEVELOPER_MODE FALSE CACHE BOOL "Enable 'developer mode'")
-  string(APPEND CMAKE_CXX_FLAGS " -s USE_PTHREADS")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -s ASYNCIFY")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -s PROXY_TO_PTHREAD")
+  target_link_options(termBreaker PUBLIC "SHELL: -s TOTAL_MEMORY=134217728")
 
-  # 32MB should be enough to run all the examples, in debug mode.
-  target_link_options(component PUBLIC "SHELL: -s TOTAL_MEMORY=33554432")
-  target_link_options(component PUBLIC "SHELL: -s ASSERTIONS=1")
   foreach(file
       "index.html"
       "run_webassembly.py")
     configure_file(${file} ${file})
   endforeach(file)
 
-  # Allow some files to be fetched.
+  # Make the resources files available to the browser.
   set_property(TARGET termBreaker
     APPEND_STRING PROPERTY LINK_FLAGS "--preload-file ../resources/")
-  #file(GLOB_RECURSE files "resources/*")
-  #foreach(file ${files})
-    #file(RELATIVE_PATH relative_file ${CMAKE_SOURCE_DIR} "${file}")
-    #MESSAGE(STATUS " --preload-file \"${file}@/${relative_file}\"")
-    #set_property(TARGET termBreaker
-      #APPEND_STRING PROPERTY LINK_FLAGS
-      #"--preload-file \"${file}@/${relative_file}\"")
-  #endforeach()
 endif()
 
 if (ENABLE_AUDIO)
   target_compile_definitions(termBreaker PUBLIC ENABLE_AUDIO)
-
-  # SMK is a multimedia framework, however I am using it only to add some sounds.
-  # TODO(arthursonzogni): Find something lightweight to replace it.
-  FetchContent_Declare(smk
-    GIT_REPOSITORY https://github.com/ArthurSonzogni/smk
-    GIT_TAG 65ff24ee244f83e019bf6fb36322c070dbf18875
-    GIT_PROGRESS ON
-  )
-
-  FetchContent_GetProperties(smk)
-  if(NOT smk_POPULATED)
-    FetchContent_Populate(smk)
-    add_subdirectory(${smk_SOURCE_DIR} ${smk_BINARY_DIR} EXCLUDE_FROM_ALL)
-  endif()
   target_link_system_libraries(termBreaker PRIVATE smk::smk)
 endif()
 
