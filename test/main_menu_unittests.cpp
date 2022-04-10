@@ -6,16 +6,16 @@ using namespace ftxui;
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST_CASE("MainMenu", "[coverage]") {
   bool quit = false;
-  bool play = false;
+  int play = -1;
   auto on_quit = [&] { quit = true; };
-  auto on_play = [&] { play = true; };
+  auto on_play = [&](int i) { play = i; };
   auto component = term_breaker::MainMenu(on_play, on_quit);
 
   // The component should be able to render without crashing.
   (void)component->Render();
 
   SECTION("Player selects play") {
-    REQUIRE(component->OnEvent(Event::ArrowDown) == false);
+    REQUIRE(component->OnEvent(Event::ArrowDown) == true);
     REQUIRE(quit == false);
   }
 

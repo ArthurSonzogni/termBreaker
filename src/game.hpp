@@ -15,7 +15,7 @@ void StartGame();
 ftxui::Component Intro(bool* enable_audio, std::function<void()> quit);
 ftxui::Component GameScreen(Board& board);
 ftxui::Component WinScreen(int coins, std::function<void()> continuation);
-ftxui::Component MainMenu(std::function<void()> play,
+ftxui::Component MainMenu(std::function<void(int)> play,
                           std::function<void()> quit);
 
 }  // namespace term_breaker

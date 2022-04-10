@@ -7,6 +7,24 @@ using namespace ftxui;
 
 namespace {
 
+const std::vector<std::string> g_levels_name = {
+    "Very easy level",  //
+    "Easy level",       //
+    "Medium level",     //
+    "Hard level",       //
+    "End game ",        //
+    "Do not hope ",     //
+};
+
+const std::vector<int> g_level_counter = {
+    2,   //
+    4,   //
+    8,   //
+    16,  //
+    32,  //
+    64,  //
+};
+
 MenuOption CustomMenuOption() {
   auto option = MenuOption::HorizontalAnimated();
   option.entries.transform = [](const EntryState& state) {
@@ -25,8 +43,19 @@ MenuOption CustomMenuOption() {
   return option;
 };
 
-Component PlayTab() {
-  return Renderer([&] { return text("Play"); });
+Component PlayTab(std::function<void(int)> play) {
+  struct Impl : public ComponentBase {
+   public:
+    Impl(std::function<void(int)> play) : play_(play) {
+      auto menu = Menu(&g_levels_name, &index_);
+      Add(menu);
+    }
+
+   private:
+    std::function<void(int)> play_;
+    int index_ = 0;
+  };
+  return Make<Impl>(play);
 }
 
 Component ShopTab() {
@@ -44,9 +73,9 @@ Element MainMenuDecorator(Element element) {
   });
 }
 
-}  // namespace
+}
 
-Component MainMenu(std::function<void()> play, std::function<void()> quit) {
+Component MainMenu(std::function<void(int)> play, std::function<void()> quit) {
   static const std::vector<std::string> tab_entries_ = {
       "Play",
       "Shop",
@@ -55,15 +84,14 @@ Component MainMenu(std::function<void()> play, std::function<void()> quit) {
 
   class Impl : public ComponentBase {
    private:
-    std::function<void()> play_;
     int tab_index_ = 0;
 
    public:
-    Impl(std::function<void()> play, std::function<void()> quit) : play_(play) {
+    Impl(std::function<void(int)> play, std::function<void()> quit) {
       auto menu = Menu(&tab_entries_, &tab_index_, CustomMenuOption());
       auto tab_content = Container::Tab(
           {
-              PlayTab(),
+              PlayTab(play),
               ShopTab(),
               QuitTab(quit),
           },

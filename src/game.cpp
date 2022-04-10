@@ -50,9 +50,9 @@ void ExecuteWinScreen(int coins) {
   screen.Loop(component);
 }
 
-void ExecuteMainMenu() {
+void ExecuteMainMenu(std::function<void(int)> play) {
   auto screen = ScreenInteractive::Fullscreen();
-  auto menu = MainMenu([] {}, screen.ExitLoopClosure());
+  auto menu = MainMenu(play, screen.ExitLoopClosure());
   screen.Loop(menu);
 }
 
@@ -92,9 +92,11 @@ void StartGame() {
 
   BoardConfig config;
   config.balls = 10;  // NOLINT
+  int level_to_play = -1;
+  auto select_level = [&](int level) { level_to_play = level; };
 
   while (true) {
-    ExecuteMainMenu();
+    ExecuteMainMenu(select_level);
     ExecuteWinScreen(10);
     ExecuteBoard(config);
   }
