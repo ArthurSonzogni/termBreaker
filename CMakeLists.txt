@@ -71,22 +71,24 @@ if(NOT smk_POPULATED)
   add_subdirectory(${smk_SOURCE_DIR} ${smk_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+project(
+  termRider
+  VERSION 0.0.1
+  DESCRIPTION ""
+  HOMEPAGE_URL "https://github.com/ArthurSonzogni/termRider"
+  LANGUAGES CXX)
+
 # Note: by default ENABLE_DEVELOPER_MODE is True
 # This means that all analysis (sanitizers, static analysis)
 # is enabled and all warnings are treated as errors
 # if you want to switch this behavior, change TRUE to FALSE
 set(ENABLE_DEVELOPER_MODE TRUE CACHE BOOL "Enable 'developer mode'")
 
-# Change this to false if you want to disable warnings_as_errors in developer mode
+# Change this to false if you want to disable warnings_as_errors in developer
+# mode
 set(OPT_WARNINGS_AS_ERRORS_DEVELOPER_DEFAULT TRUE)
 
-# Set the project name and language
-project(
-  termRider
-  VERSION 0.0.1
-  DESCRIPTION ""
-  HOMEPAGE_URL "https://github.com/ArthurSonzogni/termRider"
-  LANGUAGES CXX C)
+find_package(Threads)
 
 add_executable(termBreaker
   src/ball.cpp
@@ -109,11 +111,12 @@ target_include_directories(termBreaker
   PRIVATE src
 )
 target_link_system_libraries(termBreaker
-  PRIVATE box2d
   PRIVATE ftxui::component
   PRIVATE ftxui::dom
   PRIVATE ftxui::screen
+  PRIVATE box2d
   PRIVATE smk::smk
+  PRIVATE Threads::Threads
 )
 
 
