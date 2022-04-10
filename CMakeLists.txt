@@ -111,7 +111,7 @@ set(OPT_WARNINGS_AS_ERRORS_DEVELOPER_DEFAULT TRUE)
 
 find_package(Threads)
 
-add_executable(termBreaker
+add_library(termBreakerLib STATIC
   src/ball.cpp
   src/ball.hpp
   src/board.cpp
@@ -123,7 +123,6 @@ add_executable(termBreaker
   src/game.cpp 
   src/game.hpp 
   src/intro.cpp
-  src/main.cpp
   src/resources.cpp 
   src/resources.hpp 
   src/win.cpp
@@ -131,21 +130,20 @@ add_executable(termBreaker
   src/logo.cpp
   src/logo.hpp
 )
-target_include_directories(termBreaker
-  PRIVATE src
+target_include_directories(termBreakerLib
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_system_libraries(termBreaker
+target_link_system_libraries(termBreakerLib
   PRIVATE Threads::Threads
-  PRIVATE ftxui::component
-  PRIVATE ftxui::dom
-  PRIVATE ftxui::screen
-  PRIVATE box2d
-  PRIVATE Threads::Threads
+  PUBLIC box2d
+  PUBLIC ftxui::component
+  PUBLIC ftxui::dom
+  PUBLIC ftxui::screen
 )
 
 if (ENABLE_AUDIO)
-  target_compile_definitions(termBreaker PUBLIC ENABLE_AUDIO)
-  target_link_system_libraries(termBreaker PRIVATE smk::smk)
+  target_compile_definitions(termBreakerLib PUBLIC ENABLE_AUDIO)
+  target_link_system_libraries(termBreakerLib PRIVATE smk::smk)
 endif()
 
 
@@ -184,11 +182,12 @@ else()
   dynamic_project_options(
     PCH_HEADERS <vector> <string>
   )
-  target_link_system_libraries(termBreaker
-    PRIVATE project_options
-    PRIVATE project_warnings
+  target_link_system_libraries(termBreakerLib
+    PUBLIC project_options
+    PUBLIC project_warnings
   )
-  target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
+  target_compile_features(project_options
+    INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
 endif()
 
 # Adding the tests:
@@ -202,6 +201,12 @@ if(ENABLE_FUZZING)
   message("Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html")
   add_subdirectory(fuzz_test)
 endif()
+
+add_executable(termBreaker
+  src/main.cpp
+)
+target_link_system_libraries(termBreaker PRIVATE termBreakerLib)
+
 
 if (EMSCRIPTEN)
   target_link_options(termBreaker PUBLIC "SHELL: -s TOTAL_MEMORY=67108864")
@@ -218,8 +223,8 @@ if (EMSCRIPTEN)
 endif()
 
 if (ENABLE_AUDIO)
-  target_compile_definitions(termBreaker PUBLIC ENABLE_AUDIO)
-  target_link_system_libraries(termBreaker PRIVATE smk::smk)
+  target_compile_definitions(termBreakerLib PUBLIC ENABLE_AUDIO)
+  target_link_system_libraries(termBreakerLib PRIVATE smk::smk)
 endif()
 
 

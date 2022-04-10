@@ -19,10 +19,14 @@ target_link_system_libraries(catch_main
 )
 
 add_executable(termBreakerTests
-  tests.cpp
+  intro_unittests.cpp
+  win_unittests.cpp
 )
 target_link_system_libraries(termBreakerTests
   PRIVATE catch_main
+  PRIVATE project_options
+  PRIVATE project_warnings
+  PRIVATE termBreakerLib
 )
 
 # automatically discover tests that are defined in catch based test files you

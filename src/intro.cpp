@@ -51,11 +51,11 @@ ftxui::Component Intro(bool* enable_audio, std::function<void()> quit) {
   *enable_audio = true;
   auto buttons = Button("Start", quit, ButtonOption::Animated(Color::Green));
 #elif ENABLE_AUDIO
-  auto start_with_audio = [&] {
+  auto start_with_audio = [=] {
     *enable_audio = true;
     quit();
   };
-  auto start_without_audio = [&] {
+  auto start_without_audio = [=] {
     *enable_audio = false;
     quit();
   };
