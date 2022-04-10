@@ -68,6 +68,30 @@ project(
   HOMEPAGE_URL "https://github.com/ArthurSonzogni/termRider"
   LANGUAGES CXX C)
 
+add_executable(termBreaker
+  src/ball.cpp
+  src/ball.hpp
+  src/board.cpp
+  src/board.hpp
+  src/brick.cpp
+  src/brick.hpp
+  src/contact_listener.cpp
+  src/contact_listener.hpp
+  src/main.cpp
+  src/intro.cpp
+  src/intro.cpp
+)
+target_include_directories(termBreaker
+  PRIVATE src
+)
+target_link_system_libraries(termBreaker
+  PRIVATE box2d
+  PRIVATE ftxui::component
+  PRIVATE ftxui::dom
+  PRIVATE ftxui::screen
+)
+
+
 set(GIT_SHA "Unknown" CACHE STRING "SHA this build was generated from")
 string(SUBSTRING "${GIT_SHA}" 0 8 GIT_SHORT_SHA)
 
@@ -99,40 +123,17 @@ include(${_project_options_SOURCE_DIR}/src/DynamicProjectOptions.cmake)
 # Initialize project_options variable related to this project
 # This overwrites `project_options` and sets `project_warnings`
 # uncomment the options to enable them:
-#if (EMSCRIPTEN)
-  #dynamic_project_options(
-    #PCH_HEADERS <vector> <string>
-  #)
-#else() 
-  #project_options()
-#endif()
-
-#target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
-
-add_executable(termBreaker
-  src/ball.cpp
-  src/ball.hpp
-  src/board.cpp
-  src/board.hpp
-  src/brick.cpp
-  src/brick.hpp
-  src/contact_listener.cpp
-  src/contact_listener.hpp
-  src/intro.cpp
-  src/intro.cpp
-  src/main.cpp
-)
-target_include_directories(termBreaker
-  PRIVATE src
-)
-target_link_system_libraries(termBreaker
-  PRIVATE box2d
-  PRIVATE ftxui::component
-  PRIVATE ftxui::dom
-  PRIVATE ftxui::screen
-  #PRIVATE project_options
-  #PRIVATE project_warnings
-)
+if (EMSCRIPTEN)
+else() 
+  dynamic_project_options(
+    PCH_HEADERS <vector> <string>
+  )
+  target_link_system_libraries(termBreaker
+    PRIVATE project_options
+    PRIVATE project_warnings
+  )
+  target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
+endif()
 
 # Adding the tests:
 option(ENABLE_TESTING "Enable the tests" ON)
