@@ -3,18 +3,21 @@
 
 namespace {
 
-void OnContact(b2BodyUserData data) {
+void OnContact(b2BodyUserData data, float impulse) {
   auto* brick = reinterpret_cast<BrickBase*>(data.pointer);  // NOLINT
   if (brick != nullptr) {
-    brick->OnContact();
+    brick->OnContact(impulse);
   }
 }
 
 }  // namespace
 
-void ContactListener::BeginContact(b2Contact* contact) {
-  OnContact(contact->GetFixtureA()->GetBody()->GetUserData());
-  OnContact(contact->GetFixtureB()->GetBody()->GetUserData());
+void ContactListener::PostSolve(b2Contact* contact,
+                                const b2ContactImpulse* impulse) {
+  OnContact(contact->GetFixtureA()->GetBody()->GetUserData(),
+            impulse->normalImpulses[0]);
+  OnContact(contact->GetFixtureB()->GetBody()->GetUserData(),
+            impulse->normalImpulses[0]);
 }
 
 // Copyright 2022 Arthur Sonzogni. All rights reserved.

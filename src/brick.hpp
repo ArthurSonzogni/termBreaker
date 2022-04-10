@@ -16,7 +16,7 @@ class BrickBase {
             int counter);
   ~BrickBase();
 
-  void OnContact();
+  void OnContact(float impulse);
   void Step();
   void Draw(ftxui::Canvas& c) const;
   int counter() const { return counter_; }

@@ -58,11 +58,11 @@ void BrickBase::Step() {
     color_value_ += 10;    // NOLINT
 };
 
-void BrickBase::OnContact() {
+void BrickBase::OnContact(float impulse) {
   if (counter_ > 0) {
     counter_--;
     color_value_ = 100;  // NOLINT
-    term_breaker::PlaySound(term_breaker::sb_boing);
+    term_breaker::PlayBounceSound(impulse * 0.00005f);
   }
 }
 

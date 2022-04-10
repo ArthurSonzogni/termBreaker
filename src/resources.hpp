@@ -1,20 +1,12 @@
 #ifndef TERM_BREAKER_RESOURCES_HPP
 #define TERM_BREAKER_RESOURCES_HPP
 
-#include <memory>
-#include <smk/Sound.hpp>
-#include <smk/SoundBuffer.hpp>
-#include <vector>
-
 namespace term_breaker {
-
-void PlaySound(const smk::SoundBuffer& snd);
-std::string ResourcePath();
-
-extern smk::SoundBuffer sb_boing;
 
 void LoadResources();
 void UnloadResources();
+void PlayBounceSound(float volume);
+void PlayBackgroundMusic();
 
 }  // namespace term_breaker
 

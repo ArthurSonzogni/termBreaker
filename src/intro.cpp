@@ -28,26 +28,25 @@ Element logo(Element buttons) {
   });
 
   auto description = vbox({
-      filler(),
-      paragraphAlignCenter("Welcome to the term-breaker game!"),
-      paragraphAlignCenter("This is a game made for the"),
-      paragraphAlignCenter("C++ Best Practices Game Jam."),
-      paragraphAlignCenter("This game was made by @arthursonzogni"),
-      filler(),
-      paragraphAlignCenter(
-          "Use your mouse to throw balls toward the blocks before they reach "
-          "you"),
-      paragraphAlignCenter("Earn coins by completing levels"),
-      paragraphAlignCenter("Buy additional balls to grow."),
-      paragraphAlignCenter(""),
-      paragraphAlignCenter("Please press any key to start") | blink,
-      filler(),
-      paragraphAlignCenter(
-          "More info on https://github.com/ArthurSonzogni/term-breaker"),
-      filler(),
-      paragraphAlignCenter(
-          "Due to the audio library used, you have to decide whether to "
-          "support sounds or pass the ASAN checks"),
+    filler(), paragraphAlignCenter("Welcome to the term-breaker game!"),
+        paragraphAlignCenter("This is a game made for the"),
+        paragraphAlignCenter("C++ Best Practices Game Jam."),
+        paragraphAlignCenter("This game was made by @arthursonzogni"), filler(),
+        paragraphAlignCenter(
+            "Use your mouse to throw balls toward the blocks before they reach "
+            "you"),
+        paragraphAlignCenter("Earn coins by completing levels"),
+        paragraphAlignCenter("Buy additional balls to grow."),
+        paragraphAlignCenter(""),
+        paragraphAlignCenter("Please press any key to start") | blink, filler(),
+        paragraphAlignCenter(
+            "More info on https://github.com/ArthurSonzogni/term-breaker"),
+        filler(),
+#if !defined(__EMSCRIPTEN__)
+        paragraphAlignCenter(
+            "Due to the audio library used, you have to decide whether to "
+            "support sounds or pass the ASAN checks"),
+#endif
   });
 
   auto document = vbox({
@@ -65,6 +64,11 @@ Element logo(Element buttons) {
 void Intro(bool* enable_audio) {
   auto screen = ScreenInteractive::Fullscreen();
 
+#if defined(__EMSCRIPTEN__)
+  *enable_audio = true;
+  auto buttons = Button("Start", screen.ExitLoopClosure(),
+                        ButtonOption::Animated(Color::Green));
+#else
   auto start_with_audio = [&] {
     *enable_audio = true;
     screen.ExitLoopClosure()();
@@ -73,7 +77,6 @@ void Intro(bool* enable_audio) {
     *enable_audio = false;
     screen.ExitLoopClosure()();
   };
-
   auto btn_option_audio = ButtonOption::Animated(Color::Blue);
   auto btn_option_asan = ButtonOption::Animated(Color::Red);
 
@@ -81,6 +84,8 @@ void Intro(bool* enable_audio) {
       Button("Start with Audio", start_with_audio, btn_option_audio),
       Button("Start with ASAN", start_without_audio, btn_option_asan),
   });
+#endif
+
   auto component = buttons | logo;
   screen.Loop(component);
 }

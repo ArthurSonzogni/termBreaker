@@ -3,18 +3,22 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <iostream>
-#include <smk/Audio.hpp>
 #include <thread>
 #include "board.hpp"
 #include "intro.hpp"
 #include "resources.hpp"
+#ifdef ENABLE_AUDIO
+#include <smk/Audio.hpp>
+#endif
 
 namespace term_breaker {
 
 void StartGame(bool enable_audio) {
   (void)enable_audio;
   using namespace ftxui;
+#ifdef ENABLE_AUDIO
   smk::Audio audio;  // Initialize OpenAL.
+#endif
 
   if (enable_audio)
     term_breaker::LoadResources();
@@ -25,9 +29,7 @@ void StartGame(bool enable_audio) {
 
   // A triangle following the mouse, using braille characters.
   auto renderer = Renderer([&] {
-    auto c = Canvas(150, 150);  // NOLINT
-    board.Draw(c);
-    return canvas(std::move(c)) | border | bold;
+    return board.Draw();
   });
 
   renderer |= CatchEvent([&](Event event) {  // NOLINT
@@ -39,7 +41,7 @@ void StartGame(bool enable_audio) {
     return board.OnEvent(event);
   });
 
-  auto screen = ScreenInteractive::FitComponent();
+  auto screen = ScreenInteractive::Fullscreen();
   // This thread exists to make sure that the event queue has an event to
   // process at approximately a rate of 30 FPS
   std::atomic<bool> refresh_ui_continue = true;

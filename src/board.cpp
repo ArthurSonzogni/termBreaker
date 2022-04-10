@@ -1,6 +1,7 @@
 #include "board.hpp"
 #include <ftxui/dom/elements.hpp>
 #include <random>
+#include "resources.hpp"
 
 namespace {
 
@@ -35,6 +36,7 @@ Board::Board(BoardConfig config) : config_(config), world_(Gravity()) {
   world_.SetContactListener(&contact_listener_);
 
   InitializeBricks();
+  term_breaker::PlayBackgroundMusic();
 }
 
 void Board::InitializeBricks() {
@@ -45,7 +47,7 @@ void Board::InitializeBricks() {
   using exponential = std::exponential_distribution<float>;
   auto x_dist = uniform(0, g_board_width / 2);  // NOLINT
   auto y_dist =
-      uniform(g_board_height * 2 / 4, 5 * g_board_height / 4);  // NOLINT
+      uniform(g_board_height * 2 / 4, 3 * g_board_height / 4);  // NOLINT
   auto half_width_dist = uniform(2, 10);                        // NOLINT
   auto half_height_dist = uniform(1, 4);                        // NOLINT
   auto counter_distribution = exponential(1.F / 5.F);           // NOLINT
@@ -77,7 +79,7 @@ void Board::InitializeBricks() {
 
     bricks_.push_back(std::make_unique<BrickBase>(world_, x, y, half_width,
                                                   half_height, counter));
-    const size_t bricks = 5000;
+    const size_t bricks = 100;
     if (bricks_.size() >= bricks) {
       break;
     }
@@ -185,7 +187,10 @@ void Board::MoveUp() {
   }
 }
 
-void Board::Draw(ftxui::Canvas& c) const {
+ftxui::Element Board::Draw() const {
+  using namespace ftxui;
+  auto c = Canvas(g_board_width, g_board_height);
+
   for (const Ball& ball : balls_) {
     ball->Draw(c);
   }
@@ -194,6 +199,20 @@ void Board::Draw(ftxui::Canvas& c) const {
   }
 
   DrawShootingLine(c);
+
+  auto frame = hbox({
+      canvas(std::move(c)),
+      separator(),
+      vbox({
+          window(text("bricks:"), text(std::to_string(bricks_.size()))),
+          window(text("balls:"), text(std::to_string(balls_.size()))),
+      }),
+  });
+
+  frame |= border;
+  frame = vbox(frame, filler());
+  frame = hbox(frame, filler());
+  return frame;
 }
 
 void Board::DrawShootingLine(ftxui::Canvas& c) const {

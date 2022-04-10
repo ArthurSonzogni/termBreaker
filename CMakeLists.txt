@@ -1,5 +1,16 @@
 cmake_minimum_required(VERSION 3.16)
 
+option(ENABLE_TESTING "Enable the tests" ON)
+option(ENABLE_FUZZING "Enable the fuzz tests" OFF)
+
+# The audio backend do not work with ASAN and seems to be working only on Linux
+# and WebAssembly. Sorry!
+if(UNIX AND NOT APPLE)
+  option(ENABLE_AUDIO "Enable audio" ON)
+else()
+  option(ENABLE_AUDIO "Enable audio" OFF)
+endif()
+
 # Not ideal to use this global variable, but necessary to make sure
 # that tooling and projects use the same version
 set(CMAKE_CXX_STANDARD 17)
@@ -62,14 +73,16 @@ if(NOT box2d_POPULATED)
   add_subdirectory(${box2d_SOURCE_DIR} ${box2d_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+if (ENABLE_AUDIO)
+  FetchContent_GetProperties(smk)
+  if(NOT smk_POPULATED)
+    FetchContent_Populate(smk)
+    add_subdirectory(${smk_SOURCE_DIR} ${smk_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
+endif()
+
 FetchContent_MakeAvailable(_project_options)
 include(${_project_options_SOURCE_DIR}/Index.cmake)
-
-FetchContent_GetProperties(smk)
-if(NOT smk_POPULATED)
-  FetchContent_Populate(smk)
-  add_subdirectory(${smk_SOURCE_DIR} ${smk_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
 
 project(
   termRider
@@ -115,9 +128,13 @@ target_link_system_libraries(termBreaker
   PRIVATE ftxui::dom
   PRIVATE ftxui::screen
   PRIVATE box2d
-  PRIVATE smk::smk
   PRIVATE Threads::Threads
 )
+
+if (ENABLE_AUDIO)
+  target_compile_definitions(termBreaker PUBLIC ENABLE_AUDIO)
+  target_link_system_libraries(termBreaker PRIVATE smk::smk)
+endif()
 
 
 set(GIT_SHA "Unknown" CACHE STRING "SHA this build was generated from")
@@ -147,7 +164,6 @@ endif()
 
 include(${_project_options_SOURCE_DIR}/src/DynamicProjectOptions.cmake)
 
-
 # Initialize project_options variable related to this project
 # This overwrites `project_options` and sets `project_warnings`
 # uncomment the options to enable them:
@@ -164,14 +180,12 @@ else()
 endif()
 
 # Adding the tests:
-option(ENABLE_TESTING "Enable the tests" ON)
 if(ENABLE_TESTING)
   message("Building Tests. Be sure to check out test/constexpr_tests for constexpr
 testing")
   add_subdirectory(test)
 endif()
 
-option(ENABLE_FUZZING "Enable the fuzz tests" OFF)
 if(ENABLE_FUZZING)
   message("Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html")
   add_subdirectory(fuzz_test)
@@ -194,13 +208,37 @@ if (EMSCRIPTEN)
   endforeach(file)
 
   # Allow some files to be fetched.
-  file(GLOB_RECURSE files "./resources/**")
-  foreach(file ${files})
-    file(RELATIVE_PATH relative_file ${CMAKE_SOURCE_DIR} "${file}")
-    set_property(TARGET icemaze APPEND_STRING PROPERTY LINK_FLAGS " --preload-file \"${file}@/${relative_file}\"")
-    MESSAGE(STATUS " --preload-file \"${file}@/${relative_file}\"")
-  endforeach()
+  set_property(TARGET termBreaker
+    APPEND_STRING PROPERTY LINK_FLAGS "--preload-file ../resources/")
+  #file(GLOB_RECURSE files "resources/*")
+  #foreach(file ${files})
+    #file(RELATIVE_PATH relative_file ${CMAKE_SOURCE_DIR} "${file}")
+    #MESSAGE(STATUS " --preload-file \"${file}@/${relative_file}\"")
+    #set_property(TARGET termBreaker
+      #APPEND_STRING PROPERTY LINK_FLAGS
+      #"--preload-file \"${file}@/${relative_file}\"")
+  #endforeach()
 endif()
+
+if (ENABLE_AUDIO)
+  target_compile_definitions(termBreaker PUBLIC ENABLE_AUDIO)
+
+  # SMK is a multimedia framework, however I am using it only to add some sounds.
+  # TODO(arthursonzogni): Find something lightweight to replace it.
+  FetchContent_Declare(smk
+    GIT_REPOSITORY https://github.com/ArthurSonzogni/smk
+    GIT_TAG 65ff24ee244f83e019bf6fb36322c070dbf18875
+    GIT_PROGRESS ON
+  )
+
+  FetchContent_GetProperties(smk)
+  if(NOT smk_POPULATED)
+    FetchContent_Populate(smk)
+    add_subdirectory(${smk_SOURCE_DIR} ${smk_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
+  target_link_system_libraries(termBreaker PRIVATE smk::smk)
+endif()
+
 
 find_program(iwyu_path NAMES include-what-you-use iwyu)
 if(iwyu_path)

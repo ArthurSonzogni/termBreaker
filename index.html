@@ -49,9 +49,9 @@
     term.onBinary(onBinary);
     term.onData(onBinary)
     window.Module = {
-      preRun: () => {
-        FS.init(stdin, stdout, stderr);
-      },
+      preRun: [
+        () => { FS.init(stdin, stdout, stderr); },
+      ],
       postRun: [],
       onRuntimeInitialized: () => {},
     };

@@ -27,7 +27,7 @@ class Board {
 
   bool OnEvent(ftxui::Event event);
   void Step();
-  void Draw(ftxui::Canvas& c) const;
+  ftxui::Element Draw() const;
 
  private:
   void InitializeBricks();

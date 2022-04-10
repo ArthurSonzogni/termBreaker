@@ -24,13 +24,12 @@ jobs:
       # and your own projects needs
       matrix:
         os:
-          - ubuntu-20.04
-          - macos-10.15
-          - windows-2019
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
         compiler:
-          # you can specify the version after `-` like "llvm-13.0.0".
-          - llvm-13.0.0
-          - gcc-11
+          - llvm
+          - gcc
         generator:
           - "Ninja Multi-Config"
         build_type:
@@ -42,16 +41,22 @@ jobs:
 
         exclude:
           # mingw is determined by this author to be too buggy to support
-          - os: windows-2019
-            compiler: gcc-11
+          - os: windows
+            compiler: gcc
+
+          # Attempt reduce load:
+          - build_type: Release
+            developer_mode: ON
+          - build_type: Debug
+            developer_mode: OFF
 
         include:
           # Add appropriate variables for gcov version required. This will
           # intentionally break if you try to use a compiler that does not have
           # gcov set
-          - compiler: gcc-11
+          - compiler: gcc
             gcov_executable: gcov
-          - compiler: llvm-13.0.0
+          - compiler: llvm
             gcov_executable: "llvm-cov gcov"
 
           # Set up preferred package generators, for given build configurations
@@ -60,29 +65,32 @@ jobs:
             package_generator: TBZ2
 
           # This exists solely to make sure a non-multiconfig build works
-          - os: ubuntu-20.04
-            compiler: gcc-11
+          - os: ubuntu-latest
+            compiler: gcc
             generator: "Unix Makefiles"
             build_type: Debug
             gcov_executable: gcov
             developer_mode: On
 
-          - os: windows-2022
+          - os: windows-latest
             compiler: msvc
             generator: "Visual Studio 17 2022"
             build_type: Debug
             developer_mode: On
-          - os: windows-2022
+
+          - os: windows-latest
             compiler: msvc
             generator: "Visual Studio 17 2022"
             build_type: Release
             developer_mode: On
-          - os: windows-2022
+
+          - os: windows-latest
             compiler: msvc
             generator: "Visual Studio 17 2022"
             build_type: Debug
             developer_mode: Off
-          - os: windows-2022
+
+          - os: windows-latest
             compiler: msvc
             generator: "Visual Studio 17 2022"
             build_type: Release
@@ -177,7 +185,6 @@ jobs:
         with:
           files: |
             build/*-*${{ matrix.build_type }}*-*.*
-
 
       - name: Publish to codecov
         uses: codecov/codecov-action@v2
