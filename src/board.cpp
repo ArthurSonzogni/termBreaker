@@ -7,10 +7,19 @@ namespace {
 constexpr int g_board_width = 150;
 constexpr int g_board_height = 150;
 
+// Beind the screen, there is a dead area where there are no brick allowed to
+// stay. This avoid collisions with balls out of the screen.
+bool BrickInDeadArea(const Brick& brick) {
+  const int threshold_up = -4;
+  const int threshold_down = 80;
+  return brick->Up() >= g_board_height + threshold_up &&
+         brick->Up() <= g_board_height + threshold_down;
+}
+
 struct CollisionCallback : public b2QueryCallback {
   bool ReportFixture(b2Fixture* /*fixture*/) override {
     collided = true;
-    return false; // Terminate the query.
+    return false;  // Terminate the query.
   }
   bool collided = false;
 };
@@ -32,12 +41,13 @@ void Board::InitializeBricks() {
   std::mt19937 mt(rd());
 
   using uniform = std::uniform_int_distribution<int>;
-  auto x_dist = uniform(0, g_board_width / 2);        // NOLINT
+  using exponential = std::exponential_distribution<float>;
+  auto x_dist = uniform(0, g_board_width / 2);  // NOLINT
   auto y_dist =
       uniform(g_board_height * 2 / 4, 5 * g_board_height / 4);  // NOLINT
   auto half_width_dist = uniform(2, 10);                        // NOLINT
   auto half_height_dist = uniform(1, 4);                        // NOLINT
-  auto counter_distribution = uniform(1, 5);                    // NOLINT
+  auto counter_distribution = exponential(1.F / 5.F);           // NOLINT
 
   const int max_iterations = 100000;
   for (int i = 0; i < max_iterations; ++i) {
@@ -45,13 +55,18 @@ void Board::InitializeBricks() {
     int y = y_dist(mt) * 4;                      // NOLINT
     int half_width = half_width_dist(mt) * 2;    // NOLINT
     int half_height = half_height_dist(mt) * 4;  // NOLINT
-    int counter = counter_distribution(mt);
+    int counter = 1 + static_cast<int>(counter_distribution(mt));
 
     b2AABB aabb;
-    aabb.lowerBound.x = static_cast<float>(x - half_width);
-    aabb.lowerBound.y = static_cast<float>(y - half_height);
-    aabb.upperBound.x = static_cast<float>(x + half_width);
-    aabb.upperBound.y = static_cast<float>(y + half_height);
+    aabb.lowerBound.x = static_cast<float>(x - half_width - 1);
+    aabb.lowerBound.y = static_cast<float>(y - half_height - 1);
+    aabb.upperBound.x = static_cast<float>(x + half_width + 1);
+    aabb.upperBound.y = static_cast<float>(y + half_height + 1);
+
+    if (aabb.lowerBound.x < 0)
+      continue;
+    if (aabb.upperBound.x > g_board_width)
+      continue;
 
     CollisionCallback callback;
     world_.QueryAABB(&callback, aabb);
@@ -66,6 +81,9 @@ void Board::InitializeBricks() {
       break;
     }
   }
+
+  bricks_.erase(std::remove_if(bricks_.begin(), bricks_.end(), BrickInDeadArea),
+                bricks_.end());
 }
 
 // NOLINTNEXTLINE
@@ -76,6 +94,10 @@ bool Board::OnEvent(ftxui::Event event) {
 
   mouse_x_ = (event.mouse().x - 1) * 2;
   mouse_y_ = (event.mouse().y - 1) * 4;
+
+  // Ignore the first few events, to avoid miss click.
+  if (step_ < 30)
+    return false;
 
   if (is_shooting_) {
     return false;
@@ -93,7 +115,7 @@ bool Board::OnEvent(ftxui::Event event) {
 
 void Board::Step() {
   // Evolve the worlds using Box2D.
-  step_ ++;
+  step_++;
   float timeStep = 1.0f / 60.0f;  // NOLINT
   int32 velocityIterations = 6;   // NOLINT
   int32 positionIterations = 2;   // NOLINT
@@ -101,6 +123,12 @@ void Board::Step() {
 
   for (auto& brick : bricks_) {
     brick->Step();
+  }
+
+  // Move bricks that are close to the bottom of the screen higher.
+  for (auto& brick : bricks_) {
+    while (BrickInDeadArea(brick))
+      brick->MoveUp();
   }
 
   // Erase dead bricks.
@@ -113,16 +141,16 @@ void Board::Step() {
   if (is_shooting_ && step_ % shoot_steps == 0 &&
       remaining_balls_to_shoot_ >= 1) {
     remaining_balls_to_shoot_--;
-    const float radius = 3.F;
+    const float radius = 4.F;
     balls_.push_back(std::make_unique<BallBase>(world_, ShootPosition(),
                                                 shooting_direction_, radius));
   }
 
   // Erase out of screen balls.
   auto ball_out_of_screen = [](const Ball& ball) {
-    return ball->x() < -10.F ||  // NOLINT
-           ball->x() > 160.F ||  // NOLINT
-           ball->y() >= 160.F;   // NOLINT
+    return ball->x() < -10.F ||                 // NOLINT
+           ball->x() > 160.F ||                 // NOLINT
+           ball->y() >= g_board_height + 10.f;  // NOLINT
   };
   balls_.erase(std::remove_if(balls_.begin(), balls_.end(), ball_out_of_screen),
                balls_.end());
@@ -148,16 +176,6 @@ void Board::MoveBricks() {
   if (min_y > g_board_height * 1 / 2) {  // NOLINT
     MoveUp();
     return;
-  }
-
-  // Move bricks that are close to the bottom of the screen higher.
-  for (const auto& brick : bricks_) {
-    const int threshold_up = 30;
-    const int threshold_down = 80;
-    if (brick->Up() > g_board_height + threshold_up &&
-        brick->Up() < g_board_height + threshold_down) {
-      brick->MoveUp();
-    }
   }
 }
 
@@ -187,7 +205,7 @@ void Board::DrawShootingLine(ftxui::Canvas& c) const {
   b2Vec2 speed = ShootSpeed();
   float timeStep = 1.0f / 60.0f;  // NOLINT
 
-  const float ball_friction = 0.45F;
+  const float ball_friction = 0.5F;
   const float friction = std::pow(ball_friction, timeStep);
 
   const int iterations = 50;
@@ -235,3 +253,7 @@ b2Vec2 Board::ShootSpeed() const {
   speed *= speed_norm;
   return speed;
 }
+
+// Copyright 2022 Arthur Sonzogni. All rights reserved.
+// Use of this source code is governed by the MIT license that can be found in
+// the LICENSE file.

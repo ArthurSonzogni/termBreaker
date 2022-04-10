@@ -10,13 +10,13 @@ BallBase::BallBase(b2World& world, b2Vec2 position, b2Vec2 speed, float radius)
   fixture_def_.filter.categoryBits = 1;
   fixture_def_.filter.maskBits = 2;
   fixture_def_.shape = &dynamic_box_;
-  fixture_def_.density = 1.0f;       // NOLINT
-  fixture_def_.friction = 0.5f;      // NOLINT
+  fixture_def_.density = 1.0f;      // NOLINT
+  fixture_def_.friction = 0.5f;     // NOLINT
   fixture_def_.restitution = 0.9F;  // NOLINT
   body_->CreateFixture(&fixture_def_);
 
   static uint8_t hue = 0;
-  hue += 50;                                 // NOLINT
+  hue += 50;                                  // NOLINT
   color_ = ftxui::Color::HSV(hue, 200, 200);  // NOLINT;
 }
 
@@ -44,3 +44,7 @@ void BallBase::Draw(ftxui::Canvas& c) const {
                   static_cast<int>(y() + radius() * sin(angle)),
                   static_cast<int>(x()), static_cast<int>(y()), color_);
 }
+
+// Copyright 2022 Arthur Sonzogni. All rights reserved.
+// Use of this source code is governed by the MIT license that can be found in
+// the LICENSE file.

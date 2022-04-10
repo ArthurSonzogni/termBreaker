@@ -42,3 +42,7 @@ class BrickBase {
 using Brick = std::unique_ptr<BrickBase>;
 
 #endif  // LINE_RIDER_BRICK_HPP
+
+// Copyright 2022 Arthur Sonzogni. All rights reserved.
+// Use of this source code is governed by the MIT license that can be found in
+// the LICENSE file.

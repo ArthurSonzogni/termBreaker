@@ -4,11 +4,11 @@
 
 namespace term_breaker {
 
-namespace {
-
 using namespace ftxui;
 
-Element logo() {
+namespace {
+
+Element logo(Element buttons) {
   auto upper = vbox({
       text(R"( _____ _____ ____  __  __ )"),
       text(R"(|_   _| ____|  _ \|  \/  |)"),
@@ -18,46 +18,75 @@ Element logo() {
   });
 
   auto lower = vbox({
+      text(""),
       text(R"( ____  ____  _____    _    _  _______ ____  )"),
       text(R"(| __ )|  _ \| ____|  / \  | |/ / ____|  _ \ )"),
       text(R"(|  _ \| |_) |  _|   / _ \ | ' /|  _| | |_) |)"),
       text(R"(| |_) |  _ <| |___ / ___ \| . \| |___|  _ < )"),
       text(R"(|____/|_| \_\_____/_/   \_\_|\_\_____|_| \_\)"),
+      text(""),
   });
 
-  auto description = Elements({
-      text("Welcome to the term-breaker game!"),
-      text("This is a game made for the"),
-      text("C++ Best Practices Game Jam by @arthursonzogni"),
-      text(""),
-      text("Use your mouse to throw balls toward the blocks before they reach "
-           "you"),
-      text("Earn coins by completing levels"),
-      text("Buy additional balls to grow your power"),
-      text(""),
-      text("Please press any key to start") | blink,
-      text(""),
-      text("More info on https://github.com/ArthurSonzogni/term-breaker"),
+  auto description = vbox({
+      filler(),
+      paragraphAlignCenter("Welcome to the term-breaker game!"),
+      paragraphAlignCenter("This is a game made for the"),
+      paragraphAlignCenter("C++ Best Practices Game Jam."),
+      paragraphAlignCenter("This game was made by @arthursonzogni"),
+      filler(),
+      paragraphAlignCenter(
+          "Use your mouse to throw balls toward the blocks before they reach "
+          "you"),
+      paragraphAlignCenter("Earn coins by completing levels"),
+      paragraphAlignCenter("Buy additional balls to grow."),
+      paragraphAlignCenter(""),
+      paragraphAlignCenter("Please press any key to start") | blink,
+      filler(),
+      paragraphAlignCenter(
+          "More info on https://github.com/ArthurSonzogni/term-breaker"),
+      filler(),
+      paragraphAlignCenter(
+          "Due to the audio library used, you have to decide whether to "
+          "support sounds or pass the ASAN checks"),
   });
-
-  for (auto& it : description)
-    it |= center;
 
   auto document = vbox({
-      upper | center,
-      lower | center,
+      upper | center | flex_shrink,
+      lower | center | flex_shrink,
       separator(),
-      vbox(std::move(description)),
+      description | flex_grow,
+      buttons | center,
   });
 
   return document | border;
 }
 }  // namespace
 
-void Intro() {
-  auto component = Renderer(logo);
-  auto screen = ScreenInteractive::FitComponent();
+void Intro(bool* enable_audio) {
+  auto screen = ScreenInteractive::Fullscreen();
+
+  auto start_with_audio = [&] {
+    *enable_audio = true;
+    screen.ExitLoopClosure()();
+  };
+  auto start_without_audio = [&] {
+    *enable_audio = false;
+    screen.ExitLoopClosure()();
+  };
+
+  auto btn_option_audio = ButtonOption::Animated(Color::Blue);
+  auto btn_option_asan = ButtonOption::Animated(Color::Red);
+
+  auto buttons = Container::Horizontal({
+      Button("Start with Audio", start_with_audio, btn_option_audio),
+      Button("Start with ASAN", start_without_audio, btn_option_asan),
+  });
+  auto component = buttons | logo;
   screen.Loop(component);
 }
 
 };  // namespace term_breaker
+
+// Copyright 2022 Arthur Sonzogni. All rights reserved.
+// Use of this source code is governed by the MIT license that can be found in
+// the LICENSE file.

@@ -32,8 +32,22 @@ FetchContent_Declare(box2d
   GIT_PROGRESS ON
 )
 
+# SMK is a multimedia framework, however I am using it only to add some sounds.
+# TODO(arthursonzogni): Find something lightweight to replace it.
+FetchContent_Declare(smk
+  GIT_REPOSITORY https://github.com/ArthurSonzogni/smk
+  GIT_TAG 65ff24ee244f83e019bf6fb36322c070dbf18875
+  GIT_PROGRESS ON
+)
+
 FetchContent_GetProperties(ftxui)
 if(NOT ftxui_POPULATED)
+  set(FTXUI_BUILD_DOCS OFF CACHE INTERNAL "")
+  set(FTXUI_BUILD_EXAMPLES OFF CACHE INTERNAL "")
+  set(FTXUI_BUILD_TESTS OFF CACHE INTERNAL "")
+  set(FTXUI_BUILD_TESTS_FUZZER OFF CACHE INTERNAL "")
+  set(FTXUI_ENABLE_INSTALL OFF CACHE INTERNAL "")
+  set(FTXUI_CLANG_TIDY OFF CACHE INTERNAL "")
   FetchContent_Populate(ftxui)
   add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
@@ -50,6 +64,12 @@ endif()
 
 FetchContent_MakeAvailable(_project_options)
 include(${_project_options_SOURCE_DIR}/Index.cmake)
+
+FetchContent_GetProperties(smk)
+if(NOT smk_POPULATED)
+  FetchContent_Populate(smk)
+  add_subdirectory(${smk_SOURCE_DIR} ${smk_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
 
 # Note: by default ENABLE_DEVELOPER_MODE is True
 # This means that all analysis (sanitizers, static analysis)
@@ -77,9 +97,13 @@ add_executable(termBreaker
   src/brick.hpp
   src/contact_listener.cpp
   src/contact_listener.hpp
+  src/game.cpp 
+  src/game.hpp 
+  src/intro.cpp
+  src/intro.hpp
   src/main.cpp
-  src/intro.cpp
-  src/intro.cpp
+  src/resources.cpp 
+  src/resources.hpp 
 )
 target_include_directories(termBreaker
   PRIVATE src
@@ -89,6 +113,7 @@ target_link_system_libraries(termBreaker
   PRIVATE ftxui::component
   PRIVATE ftxui::dom
   PRIVATE ftxui::screen
+  PRIVATE smk::smk
 )
 
 
@@ -164,8 +189,23 @@ if (EMSCRIPTEN)
       "run_webassembly.py")
     configure_file(${file} ${file})
   endforeach(file)
+
+  # Allow some files to be fetched.
+  file(GLOB_RECURSE files "./resources/**")
+  foreach(file ${files})
+    file(RELATIVE_PATH relative_file ${CMAKE_SOURCE_DIR} "${file}")
+    set_property(TARGET icemaze APPEND_STRING PROPERTY LINK_FLAGS " --preload-file \"${file}@/${relative_file}\"")
+    MESSAGE(STATUS " --preload-file \"${file}@/${relative_file}\"")
+  endforeach()
 endif()
 
+find_program(iwyu_path NAMES include-what-you-use iwyu)
+if(iwyu_path)
+  set_property(TARGET ${lib}
+    PROPERTY ${iwyu_path} -Xiwyu
+      --mapping_file ${CMAKE_CURRENT_SOURCE_DIR}/iwyu.impl
+  )
+endif()
 
 # If MSVC is being used, and ASAN is enabled, we need to set the debugger environment
 # so that it behaves well with MSVC's debugger, and we can run the target from visual studio
@@ -177,6 +217,9 @@ endif()
 
 # set the startup project for the "play" button in MSVC
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT termBreaker)
+
+install(TARGETS termBreaker RUNTIME DESTINATION bin)
+install(DIRECTORY resources DESTINATION share/temrBreaker)
 
 # Add other targets that you want installed here, be default we just package the one executable
 # we know we want to ship

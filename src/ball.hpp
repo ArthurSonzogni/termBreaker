@@ -10,7 +10,6 @@ class BallBase {
  public:
   BallBase(b2World& world, b2Vec2 position, b2Vec2 speed, float radius);
   ~BallBase();
-  
 
   float x() const;
   float y() const;
@@ -30,3 +29,7 @@ class BallBase {
 using Ball = std::unique_ptr<BallBase>;
 
 #endif  // LINE_RIDER_BALL_HPP
+
+// Copyright 2022 Arthur Sonzogni. All rights reserved.
+// Use of this source code is governed by the MIT license that can be found in
+// the LICENSE file.

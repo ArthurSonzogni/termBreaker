@@ -1,5 +1,6 @@
 #include "brick.hpp"
 #include <box2d/box2d.h>
+#include "resources.hpp"
 
 namespace {
 void DrawRectangle(ftxui::Canvas& c,
@@ -61,6 +62,7 @@ void BrickBase::OnContact() {
   if (counter_ > 0) {
     counter_--;
     color_value_ = 100;  // NOLINT
+    term_breaker::PlaySound(term_breaker::sb_boing);
   }
 }
 
@@ -87,3 +89,7 @@ void BrickBase::MoveUp() {
   body_->SetTransform(b2Vec2(static_cast<float>(x_), static_cast<float>(y_)),
                       0.F);
 }
+
+// Copyright 2022 Arthur Sonzogni. All rights reserved.
+// Use of this source code is governed by the MIT license that can be found in
+// the LICENSE file.
