@@ -25,7 +25,8 @@ struct CollisionCallback : public b2QueryCallback {
 };
 
 b2Vec2 Gravity() {
-  return b2Vec2(0.F, 140.F);  // NOLINT
+  const float gravity = 140.f;
+  return b2Vec2(0.F, gravity);
 }
 
 }  // namespace
@@ -86,7 +87,6 @@ void Board::InitializeBricks() {
                 bricks_.end());
 }
 
-// NOLINTNEXTLINE
 bool Board::OnEvent(ftxui::Event event) {
   if (!event.is_mouse()) {
     return false;

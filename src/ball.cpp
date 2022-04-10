@@ -1,5 +1,15 @@
 #include "ball.hpp"
 
+namespace {
+ftxui::Color NextHue() {
+  static uint8_t hue = 0;
+  const uint8_t saturation = 200;
+  const uint8_t value = 200;
+  hue += 50;
+  return ftxui::Color::HSV(hue, saturation, value);
+}
+}  // namespace
+
 BallBase::BallBase(b2World& world, b2Vec2 position, b2Vec2 speed, float radius)
     : world_(world) {
   body_def_.type = b2_dynamicBody;
@@ -15,9 +25,7 @@ BallBase::BallBase(b2World& world, b2Vec2 position, b2Vec2 speed, float radius)
   fixture_def_.restitution = 0.9F;  // NOLINT
   body_->CreateFixture(&fixture_def_);
 
-  static uint8_t hue = 0;
-  hue += 50;                                  // NOLINT
-  color_ = ftxui::Color::HSV(hue, 200, 200);  // NOLINT;
+  color_ = NextHue();
 }
 
 BallBase::~BallBase() {

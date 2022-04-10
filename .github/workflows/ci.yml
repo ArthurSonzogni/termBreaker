@@ -112,11 +112,9 @@ jobs:
         run: >
             sudo apt update;
             sudo apt install
-              libxrandr-dev
-              libxinerama-dev
-              libxcursor-dev
-              libxi-dev
-              libxext-dev;
+            xorg-dev
+            libgl1-mesa-dev
+            libpulse-dev
 
         # make sure coverage is only enabled for Debug builds, since it sets -O0
         # to make sure coverage has meaningful results
@@ -135,8 +133,8 @@ jobs:
         # <NAME>"
         run: >
           cmake
-            --build ./build
-            --config ${{matrix.build_type}};
+          --build ./build
+          --config ${{matrix.build_type}};
 
       - name: Unix - Test and coverage
         if: runner.os != 'Windows'
@@ -147,25 +145,25 @@ jobs:
         run: >
           ctest -C ${{matrix.build_type}};
           gcovr
-            -j ${{env.nproc}}
-            --delete
-            --root ../
-            --print-summary
-            --xml-pretty
-            --xml
-            coverage.xml
-            .
-            --gcov-executable '${{ matrix.gcov_executable }}';
+          -j ${{env.nproc}}
+          --delete
+          --root ../
+          --print-summary
+          --xml-pretty
+          --xml
+          coverage.xml
+          .
+          --gcov-executable '${{ matrix.gcov_executable }}';
 
       - name: Windows - Test and coverage
         if: runner.os == 'Windows'
         working-directory: ./build
         run: >
           OpenCppCoverage.exe
-            --export_type cobertura:coverage.xml
-            --cover_children
-            --
-            ctest -C ${{matrix.build_type}};
+          --export_type cobertura:coverage.xml
+          --cover_children
+          --
+          ctest -C ${{matrix.build_type}};
 
       - name: CPack
         if: matrix.package_generator != ''
