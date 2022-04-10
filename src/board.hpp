@@ -35,6 +35,7 @@ class Board {
   static b2Vec2 ShootPosition();
   b2Vec2 ShootSpeed() const;
   void MoveUp();
+  void MoveBricks();
 
   const BoardConfig config_;
 

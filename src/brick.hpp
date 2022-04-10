@@ -22,7 +22,7 @@ class BrickBase {
   int counter() const { return counter_; }
 
   void MoveUp();
-  int y() const { return y_; }
+  int Up() const { return y_ - half_height_; }
 
  private:
   b2World& world_;

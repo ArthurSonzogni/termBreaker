@@ -133,19 +133,29 @@ void Board::Step() {
     MoveUp();
   }
 
+  MoveBricks();
+}
+
+void Board::MoveBricks() {
+  if (is_shooting_)
+    return;
+
+  // Require some bricks to appear on the screen:
   int min_y = g_board_height * 2;
   for (const auto& brick : bricks_) {
-    min_y = std::min(min_y, brick->y());
+    min_y = std::min(min_y, brick->Up());
   }
-  if (min_y > g_board_height * 4 / 5) {  // NOLINT
+  if (min_y > g_board_height * 1 / 2) {  // NOLINT
     MoveUp();
+    return;
   }
 
   // Move bricks that are close to the bottom of the screen higher.
   for (const auto& brick : bricks_) {
-    const int threshold = 20;
-    if (brick->y() > g_board_height &&
-        brick->y() < g_board_height + threshold) {
+    const int threshold_up = 30;
+    const int threshold_down = 80;
+    if (brick->Up() > g_board_height + threshold_up &&
+        brick->Up() < g_board_height + threshold_down) {
       brick->MoveUp();
     }
   }

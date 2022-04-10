@@ -30,13 +30,12 @@ Element logo() {
       text("This is a game made for the"),
       text("C++ Best Practices Game Jam by @arthursonzogni"),
       text(""),
-      text(
       text("Use your mouse to throw balls toward the blocks before they reach "
            "you"),
       text("Earn coins by completing levels"),
       text("Buy additional balls to grow your power"),
       text(""),
-      text("Please press any key to start"),
+      text("Please press any key to start") | blink,
       text(""),
       text("More info on https://github.com/ArthurSonzogni/term-breaker"),
   });
