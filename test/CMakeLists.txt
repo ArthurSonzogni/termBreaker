@@ -21,6 +21,7 @@ target_link_system_libraries(catch_main
 add_executable(termBreakerTests
   intro_unittests.cpp
   win_unittests.cpp
+  main_menu_unittests.cpp
 )
 target_link_system_libraries(termBreakerTests
   PRIVATE catch_main

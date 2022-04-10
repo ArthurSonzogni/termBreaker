@@ -84,8 +84,6 @@ ftxui::Component GameScreen(Board& board,
 void StartGame() {
 #ifdef ENABLE_AUDIO
   smk::Audio audio;  // Initialize OpenAL.
-#else
-  (void)enable_audio;
 #endif
 
   bool enable_audio = false;
