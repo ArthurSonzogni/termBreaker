@@ -3,7 +3,7 @@
 
 using namespace ftxui;
 
-TEST_CASE("Intro return after pressing enter", "[coverage]") {
+TEST_CASE("Intro return after pressing enter", "[component]") {
   bool enable_audio = false;
   bool quit = false;
   auto on_quit = [&] { quit = true; };
@@ -15,7 +15,7 @@ TEST_CASE("Intro return after pressing enter", "[coverage]") {
   (void)component->Render();
 
   SECTION("Using arrow keys to select the other button if any") {
-    component->OnEvent(Event::ArrowRight);
+    REQUIRE(component->OnEvent(Event::ArrowRight) == true);
   }
 
   // The component should be able to render without crashing.
@@ -23,6 +23,6 @@ TEST_CASE("Intro return after pressing enter", "[coverage]") {
 
   // No matter what, pressing enter should quit the intro.
   REQUIRE(quit == false);
-  component->OnEvent(Event::Return);
+  REQUIRE(component->OnEvent(Event::Return) == true);
   REQUIRE(quit == true);
 }
