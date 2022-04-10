@@ -37,6 +37,13 @@ Component QuitTab(std::function<void()> quit) {
   return Button("Quit", quit);
 }
 
+Element MainMenuDecorator(Element element) {
+  return vbox({
+      text("Term Breaker") | bold | center,
+      element,
+  });
+}
+
 }  // namespace
 
 Component MainMenu(std::function<void()> play, std::function<void()> quit) {
@@ -65,6 +72,7 @@ Component MainMenu(std::function<void()> play, std::function<void()> quit) {
           menu,
           tab_content,
       });
+      component |= MainMenuDecorator;
       Add(component);
     }
   };

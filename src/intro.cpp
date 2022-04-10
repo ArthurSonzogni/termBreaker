@@ -1,6 +1,7 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
+#include "logo.hpp"
 
 namespace term_breaker {
 
@@ -8,25 +9,7 @@ using namespace ftxui;
 
 namespace {
 
-Element logo(Element buttons) {
-  auto upper = vbox({
-      text(R"( _____ _____ ____  __  __ )"),
-      text(R"(|_   _| ____|  _ \|  \/  |)"),
-      text(R"(  | | |  _| | |_) | |\/| |)"),
-      text(R"(  | | | |___|  _ <| |  | |)"),
-      text(R"(  |_| |_____|_| \_\_|  |_|)"),
-  });
-
-  auto lower = vbox({
-      text(""),
-      text(R"( ____  ____  _____    _    _  _______ ____  )"),
-      text(R"(| __ )|  _ \| ____|  / \  | |/ / ____|  _ \ )"),
-      text(R"(|  _ \| |_) |  _|   / _ \ | ' /|  _| | |_) |)"),
-      text(R"(| |_) |  _ <| |___ / ___ \| . \| |___|  _ < )"),
-      text(R"(|____/|_| \_\_____/_/   \_\_|\_\_____|_| \_\)"),
-      text(""),
-  });
-
+Element IntroDecorator(Element buttons) {
   auto description = vbox({
     filler(), paragraphAlignCenter("Welcome to the term-breaker game!"),
         paragraphAlignCenter("This is a game made for the"),
@@ -50,8 +33,7 @@ Element logo(Element buttons) {
   });
 
   auto document = vbox({
-      upper | center | flex_shrink,
-      lower | center | flex_shrink,
+      Logo() | flex_shrink,
       separator(),
       description | flex_grow,
       buttons | center,
@@ -90,7 +72,7 @@ ftxui::Component Intro(bool* enable_audio, std::function<void()> quit) {
                         ButtonOption::Animated(Color::Yellow));
 #endif  // ENABLE_AUDIO
 
-  return buttons | logo;
+  return buttons | IntroDecorator;
 }
 
 };  // namespace term_breaker

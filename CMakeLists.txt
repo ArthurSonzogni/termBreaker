@@ -123,12 +123,13 @@ add_executable(termBreaker
   src/game.cpp 
   src/game.hpp 
   src/intro.cpp
-  src/intro.hpp
   src/main.cpp
   src/resources.cpp 
   src/resources.hpp 
   src/win.cpp
   src/main_menu.cpp
+  src/logo.cpp
+  src/logo.hpp
 )
 target_include_directories(termBreaker
   PRIVATE src

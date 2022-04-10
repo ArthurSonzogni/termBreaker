@@ -48,7 +48,7 @@
     term.resize(140,43);
     term.loadAddon(new (WebglAddon.WebglAddon)());
     const onBinary = e => {
-      for(c of e)
+      for(const c of e)
         stdin_buffer.push(c.charCodeAt(0));
     }
     term.onBinary(onBinary);
