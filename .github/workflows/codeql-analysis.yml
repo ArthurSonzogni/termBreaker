@@ -56,15 +56,24 @@ jobs:
       with:
         compiler: ${{ matrix.compiler }}
         vcvarsall: ${{ contains(matrix.os, 'windows' )}}
-
         cmake: true
         ninja: true
         clangtidy: false
-
         cppcheck: false
-
         gcovr: false
         opencppcoverage: false
+
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: >
+          sudo apt update;
+          sudo apt install
+            libxrandr-dev
+            libxinerama-dev
+            libxcursor-dev
+            libxi-dev
+            libxext-dev;
+
 
       # make sure coverage is only enabled for Debug builds, since it sets -O0
       # to make sure coverage has meaningful results
