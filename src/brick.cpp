@@ -2,6 +2,8 @@
 #include <box2d/box2d.h>
 #include "resources.hpp"
 
+namespace term_breaker {
+
 namespace {
 void DrawRectangle(ftxui::Canvas& c,
                    int x_min,
@@ -62,7 +64,7 @@ void BrickBase::OnContact(float impulse) {
   if (counter_ > 0) {
     counter_--;
     color_value_ = 100;  // NOLINT
-    term_breaker::PlayBounceSound(impulse * 0.00005f);
+    PlayBounceSound(impulse * 0.00005f);
   }
 }
 
@@ -77,7 +79,7 @@ void BrickBase::Draw(ftxui::Canvas& c) const {
   std::string label = std::to_string(counter_);
 
   const auto color_foreground_black = [](ftxui::Pixel& pixel) {
-    pixel.foreground_color = ftxui::Color::Black;
+    pixel.foreground_color = ftxui::Color::RGB(0, 0, 0);
   };
 
   c.DrawText(x_ - static_cast<int>(label.size()) / 2, y_, label,
@@ -89,6 +91,8 @@ void BrickBase::MoveUp() {
   body_->SetTransform(b2Vec2(static_cast<float>(x_), static_cast<float>(y_)),
                       0.F);
 }
+
+}  // namespace term_breaker
 
 // Copyright 2022 Arthur Sonzogni. All rights reserved.
 // Use of this source code is governed by the MIT license that can be found in

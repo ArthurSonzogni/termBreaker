@@ -61,21 +61,21 @@ Element logo(Element buttons) {
 }
 }  // namespace
 
-void Intro(bool* enable_audio) {
-  auto screen = ScreenInteractive::Fullscreen();
-
+ftxui::Component Intro(bool* enable_audio, std::function<void()> quit) {
+  // Depending on the configuration and platform, we might or might not be able
+  // to play audio. If we can, we let the player decide, except when running
+  // inside the browser.
 #if defined(__EMSCRIPTEN__)
   *enable_audio = true;
-  auto buttons = Button("Start", screen.ExitLoopClosure(),
-                        ButtonOption::Animated(Color::Green));
-#else
+  auto buttons = Button("Start", quit, ButtonOption::Animated(Color::Green));
+#elif ENABLE_AUDIO
   auto start_with_audio = [&] {
     *enable_audio = true;
-    screen.ExitLoopClosure()();
+    quit();
   };
   auto start_without_audio = [&] {
     *enable_audio = false;
-    screen.ExitLoopClosure()();
+    quit();
   };
   auto btn_option_audio = ButtonOption::Animated(Color::Blue);
   auto btn_option_asan = ButtonOption::Animated(Color::Red);
@@ -84,10 +84,13 @@ void Intro(bool* enable_audio) {
       Button("Start with Audio", start_with_audio, btn_option_audio),
       Button("Start with ASAN", start_without_audio, btn_option_asan),
   });
-#endif
+#else
+  *enable_audio = false;
+  auto buttons = Button("Start", screen.ExitLoopClosure(),
+                        ButtonOption::Animated(Color::Yellow));
+#endif  // ENABLE_AUDIO
 
-  auto component = buttons | logo;
-  screen.Loop(component);
+  return buttons | logo;
 }
 
 };  // namespace term_breaker

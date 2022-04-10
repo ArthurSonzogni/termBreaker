@@ -1,11 +1,8 @@
 #include <cstdlib>
 #include "game.hpp"
-#include "intro.hpp"
 
 int main() {
-  bool enable_audio = false;
-  term_breaker::Intro(&enable_audio);
-  term_breaker::StartGame(enable_audio);
+  term_breaker::StartGame();
   return EXIT_SUCCESS;
 }
 

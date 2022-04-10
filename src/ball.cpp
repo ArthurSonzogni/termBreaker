@@ -1,5 +1,7 @@
 #include "ball.hpp"
 
+namespace term_breaker {
+
 namespace {
 ftxui::Color NextHue() {
   static uint8_t hue = 0;
@@ -52,6 +54,8 @@ void BallBase::Draw(ftxui::Canvas& c) const {
                   static_cast<int>(y() + radius() * sin(angle)),
                   static_cast<int>(x()), static_cast<int>(y()), color_);
 }
+
+}  // namespace term_breaker
 
 // Copyright 2022 Arthur Sonzogni. All rights reserved.
 // Use of this source code is governed by the MIT license that can be found in

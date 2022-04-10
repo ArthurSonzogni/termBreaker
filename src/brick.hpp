@@ -6,6 +6,8 @@
 #include <ftxui/screen/color.hpp>
 #include <memory>
 
+namespace term_breaker {
+
 class BrickBase {
  public:
   BrickBase(b2World& world,
@@ -40,6 +42,8 @@ class BrickBase {
 };
 
 using Brick = std::unique_ptr<BrickBase>;
+
+}  // namespace term_breaker
 
 #endif  // LINE_RIDER_BRICK_HPP
 

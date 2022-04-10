@@ -81,7 +81,7 @@ void PlaySound(const smk::SoundBuffer& snd, float volume) {
 
 void LoadResources() {
   sb_boing = smk::SoundBuffer(ResourcePath() + "/bounce.wav");
-  sb_background= smk::SoundBuffer(ResourcePath() + "/background.ogg");
+  sb_background = smk::SoundBuffer(ResourcePath() + "/background.ogg");
 }
 
 void UnloadResources() {
@@ -105,7 +105,7 @@ void PlayBounceSound(float volume) {
 }
 }  // namespace term_breaker
 
-#else // ENABLE_AUDIO
+#else  // ENABLE_AUDIO
 
 namespace term_breaker {
 void LoadResources() {}
@@ -114,7 +114,7 @@ void PlayBounceSound(float /*volume*/) {}
 void PlayBackgroundMusic() {}
 }  // namespace term_breaker
 
-#endif // ENABLE_AUDIO
+#endif  // ENABLE_AUDIO
 
 // Copyright 2022 Arthur Sonzogni. All rights reserved.
 // Use of this source code is governed by the MIT license that can be found in

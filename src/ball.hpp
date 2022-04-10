@@ -6,6 +6,8 @@
 #include <ftxui/screen/color.hpp>
 #include <memory>
 
+namespace term_breaker {
+
 class BallBase {
  public:
   BallBase(b2World& world, b2Vec2 position, b2Vec2 speed, float radius);
@@ -27,6 +29,8 @@ class BallBase {
 };
 
 using Ball = std::unique_ptr<BallBase>;
+
+}  // namespace term_breaker
 
 #endif  // LINE_RIDER_BALL_HPP
 

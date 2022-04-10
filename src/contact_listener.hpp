@@ -3,9 +3,13 @@
 
 #include <box2d/box2d.h>
 
+namespace term_breaker {
+
 class ContactListener : public b2ContactListener {
-  void PostSolve (b2Contact *contact, const b2ContactImpulse *impulse) override;
+  void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 };
+
+}  // namespace term_breaker
 
 #endif  // LINE_RIDER_CONTACT_LISTENER_HPP
 

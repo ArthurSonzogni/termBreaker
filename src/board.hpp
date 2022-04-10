@@ -17,6 +17,8 @@
 #include "brick.hpp"
 #include "contact_listener.hpp"
 
+namespace term_breaker {
+
 struct BoardConfig {
   int balls = 0;
 };
@@ -53,6 +55,8 @@ class Board {
   int remaining_balls_to_shoot_ = 0;
   b2Vec2 shooting_direction_;
 };
+
+} // namespace term_breaker
 
 #endif  // BOARD_HPP
 

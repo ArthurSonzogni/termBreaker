@@ -3,6 +3,7 @@
 #include <random>
 #include "resources.hpp"
 
+namespace term_breaker {
 namespace {
 
 constexpr int g_board_width = 150;
@@ -36,7 +37,7 @@ Board::Board(BoardConfig config) : config_(config), world_(Gravity()) {
   world_.SetContactListener(&contact_listener_);
 
   InitializeBricks();
-  term_breaker::PlayBackgroundMusic();
+  PlayBackgroundMusic();
 }
 
 void Board::InitializeBricks() {
@@ -275,6 +276,8 @@ b2Vec2 Board::ShootSpeed() const {
   speed *= speed_norm;
   return speed;
 }
+
+}  // namespace term_breaker
 
 // Copyright 2022 Arthur Sonzogni. All rights reserved.
 // Use of this source code is governed by the MIT license that can be found in

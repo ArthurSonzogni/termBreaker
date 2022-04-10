@@ -18,18 +18,18 @@ target_link_system_libraries(catch_main
   PUBLIC Catch2::Catch2
 )
 
-add_executable(tests
+add_executable(termBreakerTests
   tests.cpp
 )
-target_link_system_libraries(tests
+target_link_system_libraries(termBreakerTests
   PRIVATE catch_main
 )
 
 # automatically discover tests that are defined in catch based test files you
 # can modify the unittests. Set TEST_PREFIX to whatever you want, or use
 # different for different binaries
-catch_discover_tests(
-  tests
+catch_discover_tests(termBreakerTests
+  TEST_PREFIX "unittests."
   REPORTER xml
   OUTPUT_DIR .
   OUTPUT_PREFIX "unittests."

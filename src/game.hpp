@@ -5,10 +5,17 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <functional>
+#include "board.hpp"
 
 namespace term_breaker {
 
-void StartGame(bool enable_audio);
+void StartGame();
+
+// Exposed for testing.
+ftxui::Component Intro(bool* enable_audio, std::function<void()> quit);
+ftxui::Component GameScreen(Board& board,
+                            std::function<void()> win,
+                            std::function<void()> exit);
 ftxui::Component WinScreen(int coins, std::function<void()> continuation);
 ftxui::Component MainMenu(std::function<void()> play,
                           std::function<void()> quit);

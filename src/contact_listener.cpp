@@ -1,6 +1,8 @@
 #include "contact_listener.hpp"
 #include "brick.hpp"
 
+namespace term_breaker {
+
 namespace {
 
 void OnContact(b2BodyUserData data, float impulse) {
@@ -19,6 +21,8 @@ void ContactListener::PostSolve(b2Contact* contact,
   OnContact(contact->GetFixtureB()->GetBody()->GetUserData(),
             impulse->normalImpulses[0]);
 }
+
+}  // namespace term_breaker
 
 // Copyright 2022 Arthur Sonzogni. All rights reserved.
 // Use of this source code is governed by the MIT license that can be found in
