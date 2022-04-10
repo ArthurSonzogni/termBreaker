@@ -11,6 +11,7 @@
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/color.hpp>
 #include <ftxui/screen/screen.hpp>
+#include <functional>
 #include <vector>
 
 #include "ball.hpp"
@@ -25,7 +26,10 @@ struct BoardConfig {
 
 class Board {
  public:
-  explicit Board(BoardConfig config);
+  explicit Board(BoardConfig config,
+                 std::function<void()> win,
+                 std::function<void()> lose,
+                 std::function<void()> quit);
 
   bool OnEvent(ftxui::Event event);
   void Step();
@@ -40,6 +44,10 @@ class Board {
   void MoveBricks();
 
   const BoardConfig config_;
+
+  std::function<void()> win_;
+  std::function<void()> lose_;
+  std::function<void()> quit_;
 
   b2World world_;
   ContactListener contact_listener_;

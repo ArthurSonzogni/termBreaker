@@ -33,7 +33,11 @@ b2Vec2 Gravity() {
 
 }  // namespace
 
-Board::Board(BoardConfig config) : config_(config), world_(Gravity()) {
+Board::Board(BoardConfig config,
+             std::function<void()> win,
+             std::function<void()> lose,
+             std::function<void()> quit)
+    : config_(config), win_(win), lose_(lose), quit_(quit), world_(Gravity()) {
   world_.SetContactListener(&contact_listener_);
 
   InitializeBricks();

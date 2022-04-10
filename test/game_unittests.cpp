@@ -22,14 +22,16 @@ Event MakeMouseEvent(int x, int y, bool pressed) {
 TEST_CASE("GameScreen", "[component]") {
   term_breaker::BoardConfig config;
   config.balls = 100;  // NOLINT
-  term_breaker::Board board(config);
 
   bool quit = false;
   bool win = false;
+  bool lose = false;
   auto on_quit = [&] { quit = true; };
   auto on_win = [&] { win = true; };
+  auto on_lose = [&] { lose = true; };
 
-  auto component = term_breaker::GameScreen(board, on_win, on_quit);
+  term_breaker::Board board(config, on_win, on_lose, on_quit);
+  auto component = term_breaker::GameScreen(board);
 
   // Wait for bricks to appear:
   const int iterations = 600;

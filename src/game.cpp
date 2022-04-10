@@ -20,7 +20,10 @@ namespace {
 
 void ExecuteBoard(BoardConfig config) {
   auto screen = ScreenInteractive::Fullscreen();
-  Board board(config);
+  auto on_quit = screen.ExitLoopClosure();
+  auto on_win = [] {};
+  auto on_lose = [] {};
+  Board board(config, on_win, on_lose, on_quit);
 
   // This thread exists to make sure that the event queue has an event to
   // process at approximately a rate of 60 FPS
@@ -34,8 +37,7 @@ void ExecuteBoard(BoardConfig config) {
     }
   });
 
-  auto component = GameScreen(
-      board, [] {}, screen.ExitLoopClosure());
+  auto component = GameScreen(board);
   screen.Loop(component);
 
   refresh_ui_continue = false;
@@ -63,11 +65,7 @@ void ExecuteIntro(bool* enable_audio) {
 }  // namespace
 
 // The component responsible for renderering the game board.
-ftxui::Component GameScreen(Board& board,
-                            std::function<void()> win,
-                            std::function<void()> exit) {
-  (void)win;
-  (void)exit;
+ftxui::Component GameScreen(Board& board) {
   auto component = Renderer([&] { return board.Draw(); });
   component |= CatchEvent([&](Event event) {  // NOLINT
     if (event == Event::Custom) {

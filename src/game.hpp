@@ -13,9 +13,7 @@ void StartGame();
 
 // Exposed for testing.
 ftxui::Component Intro(bool* enable_audio, std::function<void()> quit);
-ftxui::Component GameScreen(Board& board,
-                            std::function<void()> win,
-                            std::function<void()> exit);
+ftxui::Component GameScreen(Board& board);
 ftxui::Component WinScreen(int coins, std::function<void()> continuation);
 ftxui::Component MainMenu(std::function<void()> play,
                           std::function<void()> quit);
