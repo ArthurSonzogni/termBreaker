@@ -30,8 +30,8 @@ TEST_CASE("GameScreen", "[component]") {
   auto on_win = [&] { win = true; };
   auto on_lose = [&] { lose = true; };
 
-  term_breaker::Board board(config, on_win, on_lose, on_quit);
-  auto component = term_breaker::GameScreen(board);
+  term_breaker::Board board(config, on_win, on_lose);
+  auto component = term_breaker::GameScreen(board, on_lose, on_quit);
 
   // Wait for bricks to appear:
   const int iterations = 600;

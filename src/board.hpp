@@ -22,6 +22,7 @@ namespace term_breaker {
 
 struct BoardConfig {
   int balls = 0;
+  int difficulty = 0;
 
   bool buy_item_1 = false;
   bool buy_item_2 = false;
@@ -37,12 +38,11 @@ class Board {
  public:
   explicit Board(BoardConfig config,
                  std::function<void()> win,
-                 std::function<void()> lose,
-                 std::function<void()> quit);
+                 std::function<void()> lose);
 
   bool OnEvent(ftxui::Event event);
   void Step();
-  ftxui::Element Draw() const;
+  ftxui::Element Draw(ftxui::Element back_btn, ftxui::Element quit_btn) const;
 
  private:
   void InitializeBricks();
@@ -56,7 +56,6 @@ class Board {
 
   std::function<void()> win_;
   std::function<void()> lose_;
-  std::function<void()> quit_;
 
   b2World world_;
   ContactListener contact_listener_;

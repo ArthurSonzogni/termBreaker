@@ -18,12 +18,34 @@ using namespace ftxui;
 
 namespace {
 
-void ExecuteBoard(BoardConfig config) {
+const std::vector<int> g_prize = {
+    2000,   //
+    4000,   //
+    8000,   //
+    16000,  //
+    32000,  //
+    64000,  //
+};
+
+void ExecuteBoard(BoardConfig config,
+                  std::function<void()> win,
+                  std::function<void()> lose,
+                  std::function<void()> quit) {
   auto screen = ScreenInteractive::Fullscreen();
-  auto on_quit = screen.ExitLoopClosure();
-  auto on_win = [] {};
-  auto on_lose = [] {};
-  Board board(config, on_win, on_lose, on_quit);
+  auto exit = screen.ExitLoopClosure();
+  auto on_quit = [=] {
+    quit();
+    exit();
+  };
+  auto on_win = [=] {
+    win();
+    exit();
+  };
+  auto on_lose= [=] {
+    lose();
+    exit();
+  };
+  Board board(config, on_win, on_lose);
 
   // This thread exists to make sure that the event queue has an event to
   // process at approximately a rate of 60 FPS
@@ -37,7 +59,7 @@ void ExecuteBoard(BoardConfig config) {
     }
   });
 
-  auto component = GameScreen(board);
+  auto component = GameScreen(board, on_lose, on_quit);
   screen.Loop(component);
 
   refresh_ui_continue = false;
@@ -50,9 +72,25 @@ void ExecuteWinScreen(int coins) {
   screen.Loop(component);
 }
 
-void ExecuteMainMenu(std::function<void(int)> play) {
+void ExecuteLoseScreen() {
   auto screen = ScreenInteractive::Fullscreen();
-  auto menu = MainMenu(play, screen.ExitLoopClosure());
+  auto component = LoseScreen(screen.ExitLoopClosure());
+  screen.Loop(component);
+}
+
+void ExecuteMainMenu(std::function<void(int)> play,
+                     std::function<void()> quit) {
+  auto screen = ScreenInteractive::Fullscreen();
+  auto exit = screen.ExitLoopClosure();
+  auto play_and_exit = [play, exit](int level) {
+    play(level);
+    exit();
+  };
+  auto quit_and_exit = [quit, exit]() {
+    quit();
+    exit();
+  };
+  auto menu = MainMenu(play_and_exit, quit_and_exit);
   screen.Loop(menu);
 }
 
@@ -65,8 +103,19 @@ void ExecuteIntro(bool* enable_audio) {
 }  // namespace
 
 // The component responsible for renderering the game board.
-ftxui::Component GameScreen(Board& board) {
-  auto component = Renderer([&] { return board.Draw(); });
+ftxui::Component GameScreen(Board& board,
+                            std::function<void()> lose,
+                            std::function<void()> quit) {
+  auto button_back = Button("Back", lose, ButtonOption::Animated(Color::Blue));
+  auto button_quit = Button("Quit", quit, ButtonOption::Animated(Color::Red));
+  auto layout = Container::Vertical({
+      button_back,
+      button_quit,
+  });
+
+  auto component = Renderer(layout, [&, button_back, button_quit] {
+    return board.Draw(button_back->Render(), button_quit->Render());
+  });
   component |= CatchEvent([&](Event event) {  // NOLINT
     if (event == Event::Custom) {
       board.Step();
@@ -93,12 +142,40 @@ void StartGame() {
   BoardConfig config;
   config.balls = 10;  // NOLINT
   int level_to_play = -1;
-  auto select_level = [&](int level) { level_to_play = level; };
 
-  while (true) {
-    ExecuteMainMenu(select_level);
-    ExecuteWinScreen(10);
-    ExecuteBoard(config);
+  bool quit = false;
+  auto on_quit = [&] { quit = true; };
+
+  while (!quit) {
+    bool level_selected = false;
+    auto select_level = [&](int level) {
+      level_selected = true;
+      level_to_play = level;
+    };
+
+    ExecuteMainMenu(select_level, on_quit);
+    if (quit) {
+      break;
+    }
+
+    if (level_selected) {
+      bool win = false;
+      auto on_win = [&] { win = true; };
+      auto on_lose = [&] { win = false; };
+
+      config.difficulty = level_to_play;
+      ExecuteBoard(config, on_win, on_lose, on_quit);
+
+      if (quit) {
+        break;
+      }
+
+      if (win) {
+        ExecuteWinScreen(g_prize.at(size_t(level_to_play)));
+      } else {
+        ExecuteLoseScreen();
+      }
+    }
   }
 
   UnloadResources();

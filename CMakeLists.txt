@@ -123,12 +123,13 @@ add_library(termBreakerLib STATIC
   src/game.cpp 
   src/game.hpp 
   src/intro.cpp
+  src/logo.cpp
+  src/logo.hpp
+  src/lose.cpp
+  src/main_menu.cpp
   src/resources.cpp 
   src/resources.hpp 
   src/win.cpp
-  src/main_menu.cpp
-  src/logo.cpp
-  src/logo.hpp
 )
 target_include_directories(termBreakerLib
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src

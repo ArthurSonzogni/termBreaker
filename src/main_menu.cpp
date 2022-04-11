@@ -1,5 +1,6 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/dom/elements.hpp>
+#include "logo.hpp"
 
 namespace term_breaker {
 
@@ -16,15 +17,16 @@ const std::vector<std::string> g_levels_name = {
     "Do not hope ",     //
 };
 
-const std::vector<int> g_level_counter = {
-    2,   //
-    4,   //
-    8,   //
-    16,  //
-    32,  //
-    64,  //
+const std::vector<int> g_prize = {
+    2000,   //
+    4000,   //
+    8000,   //
+    16000,  //
+    32000,  //
+    64000,  //
 };
 
+// A tab menu, with extra wide items.
 MenuOption CustomMenuOption() {
   auto option = MenuOption::HorizontalAnimated();
   option.entries.transform = [](const EntryState& state) {
@@ -46,13 +48,35 @@ MenuOption CustomMenuOption() {
 Component PlayTab(std::function<void(int)> play) {
   struct Impl : public ComponentBase {
    public:
-    Impl(std::function<void(int)> play) : play_(play) {
-      auto menu = Menu(&g_levels_name, &index_);
-      Add(menu);
+    Impl(std::function<void(int)> play) {
+      auto on_click = [&, play] { play(index_); };
+      menu_ = Menu(&g_levels_name, &index_);
+      play_button_ = Button("Play", on_click,
+                            ButtonOption::Animated(Color::Red, Color::White));
+
+      auto layout = Container::Horizontal({
+          menu_,
+          play_button_,
+      });
+
+      auto renderer = Renderer(layout, [&] {
+        return hbox({
+            menu_->Render() | borderEmpty,
+            vbox({
+                text("Title: " + g_levels_name.at(size_t(index_))),
+                text("Prize: " + std::to_string(g_prize.at(size_t(index_)))),
+            }) | size(WIDTH, GREATER_THAN, 25) |
+                border,
+            play_button_->Render() | size(WIDTH, GREATER_THAN, 7) | borderEmpty,
+        });
+      });
+
+      Add(renderer);
     }
 
    private:
-    std::function<void(int)> play_;
+    Component menu_;
+    Component play_button_;
     int index_ = 0;
   };
   return Make<Impl>(play);
@@ -63,7 +87,7 @@ Component ShopTab() {
 }
 
 Component QuitTab(std::function<void()> quit) {
-  return Button("Quit", quit);
+  return Button("Quit", quit, ButtonOption::Animated());
 }
 
 Element MainMenuDecorator(Element element) {

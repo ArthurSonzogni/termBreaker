@@ -35,9 +35,8 @@ b2Vec2 Gravity() {
 
 Board::Board(BoardConfig config,
              std::function<void()> win,
-             std::function<void()> lose,
-             std::function<void()> quit)
-    : config_(config), win_(win), lose_(lose), quit_(quit), world_(Gravity()) {
+             std::function<void()> lose)
+    : config_(config), win_(win), lose_(lose), world_(Gravity()) {
   world_.SetContactListener(&contact_listener_);
 
   InitializeBricks();
@@ -50,12 +49,14 @@ void Board::InitializeBricks() {
 
   using uniform = std::uniform_int_distribution<int>;
   using exponential = std::exponential_distribution<float>;
-  auto x_dist = uniform(0, g_board_width / 2);  // NOLINT
-  auto y_dist =
+  auto x_dist = uniform(0, g_board_width / 2);                  // NOLINT
+  auto y_dist =                                                 // NOLINT
       uniform(g_board_height * 2 / 4, 3 * g_board_height / 4);  // NOLINT
   auto half_width_dist = uniform(2, 10);                        // NOLINT
   auto half_height_dist = uniform(1, 4);                        // NOLINT
-  auto counter_distribution = exponential(1.F / 5.F);           // NOLINT
+  int mean_counter = 1 + (1 << config_.difficulty);
+  auto counter_distribution =                               // NOLINT
+      exponential(1.F / static_cast<float>(mean_counter));  // NOLINT
 
   const int max_iterations = 100000;
   for (int i = 0; i < max_iterations; ++i) {
@@ -192,7 +193,8 @@ void Board::MoveUp() {
   }
 }
 
-ftxui::Element Board::Draw() const {
+ftxui::Element Board::Draw(ftxui::Element back_btn,
+                           ftxui::Element quit_btn) const {
   using namespace ftxui;
   auto c = Canvas(g_board_width, g_board_height);
 
@@ -214,6 +216,9 @@ ftxui::Element Board::Draw() const {
       vbox({
           window(text("bricks:"), text(std::to_string(bricks_.size()))),
           window(text("balls:"), text(balls_remaining)),
+          back_btn,
+          quit_btn,
+          filler(),
       }),
   });
 
