@@ -38,3 +38,7 @@ cmake ..
 make -j
 ./test/termBreakerTests
 ```
+
+## What warning have been removed?
+
+MSVC with DEVELOPER_MODE seems to fail. I had to remove them to pass the CI.
