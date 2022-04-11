@@ -94,7 +94,7 @@ include(${_project_options_SOURCE_DIR}/Index.cmake)
 
 project(
   termRider
-  VERSION 0.0.2
+  VERSION 0.0.3
   DESCRIPTION ""
   HOMEPAGE_URL "https://github.com/ArthurSonzogni/termRider"
   LANGUAGES CXX)
