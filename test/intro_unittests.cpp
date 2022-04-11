@@ -12,14 +12,14 @@ TEST_CASE("Intro return after pressing enter", "[component]") {
   REQUIRE(quit == false);
 
   // The component should be able to render without crashing.
-  (void)component->Render();
+  component->Render();
 
   SECTION("Using arrow keys to select the other button if any") {
     component->OnEvent(Event::ArrowRight);
   }
 
   // The component should be able to render without crashing.
-  (void)component->Render();
+  component->Render();
 
   // No matter what, pressing enter should quit the intro.
   REQUIRE(quit == false);

@@ -147,14 +147,26 @@ void StartGame() {
   bool quit = false;
   auto on_quit = [&] { quit = true; };
 
+  int iterations = 0;
+
   while (!quit) {
+    iterations++;
     bool level_selected = false;
     auto select_level = [&](int level) {
       level_selected = true;
       level_to_play = level;
     };
 
-    ExecuteMainMenu(config, select_level, on_quit);
+    // Skip the first menu, because it is fun starting playing the game
+    // directly.
+    if (iterations != 1) { // NOLINT
+      ExecuteMainMenu(config, select_level, on_quit);
+    }
+    else {
+      level_selected = true;
+      level_to_play = 0;
+    }
+
     if (quit) {
       break;
     }
@@ -173,6 +185,7 @@ void StartGame() {
 
       if (win) {
         ExecuteWinScreen(g_prize.at(size_t(level_to_play)));
+        config.coins += g_prize.at(size_t(level_to_play));
       } else {
         ExecuteLoseScreen();
       }

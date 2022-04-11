@@ -10,7 +10,7 @@ TEST_CASE("WinScreen return after pressing enter", "[component]") {
   auto component = term_breaker::WinScreen(coins, on_quit);
 
   // The component should be able to render without crashing.
-  (void)component->Render();
+  component->Render();
 
   // The component should be able to quit, by pressing enter.
   REQUIRE(quit == false);
