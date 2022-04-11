@@ -78,7 +78,8 @@ void ExecuteLoseScreen() {
   screen.Loop(component);
 }
 
-void ExecuteMainMenu(std::function<void(int)> play,
+void ExecuteMainMenu(BoardConfig& config,
+                     std::function<void(int)> play,
                      std::function<void()> quit) {
   auto screen = ScreenInteractive::Fullscreen();
   auto exit = screen.ExitLoopClosure();
@@ -90,7 +91,7 @@ void ExecuteMainMenu(std::function<void(int)> play,
     quit();
     exit();
   };
-  auto menu = MainMenu(play_and_exit, quit_and_exit);
+  auto menu = MainMenu(config, play_and_exit, quit_and_exit);
   screen.Loop(menu);
 }
 
@@ -140,7 +141,7 @@ void StartGame() {
     LoadResources();
 
   BoardConfig config;
-  config.balls = 10;  // NOLINT
+  config.balls = 5;  // NOLINT
   int level_to_play = -1;
 
   bool quit = false;
@@ -153,7 +154,7 @@ void StartGame() {
       level_to_play = level;
     };
 
-    ExecuteMainMenu(select_level, on_quit);
+    ExecuteMainMenu(config, select_level, on_quit);
     if (quit) {
       break;
     }

@@ -18,7 +18,8 @@ ftxui::Component GameScreen(Board& board,
                             std::function<void()> quit);
 ftxui::Component WinScreen(int coins, std::function<void()> continuation);
 ftxui::Component LoseScreen(std::function<void()> continuation);
-ftxui::Component MainMenu(std::function<void(int)> play,
+ftxui::Component MainMenu(BoardConfig& config,
+                          std::function<void(int)> play,
                           std::function<void()> quit);
 
 }  // namespace term_breaker

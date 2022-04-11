@@ -9,7 +9,12 @@ TEST_CASE("MainMenu", "[coverage]") {
   int play = -1;
   auto on_quit = [&] { quit = true; };
   auto on_play = [&](int i) { play = i; };
-  auto component = term_breaker::MainMenu(on_play, on_quit);
+  term_breaker::BoardConfig config;
+  const int initial_coins = 2000;
+  const int initial_balls = 5;
+  config.balls = initial_balls;
+  config.coins = initial_coins;
+  auto component = term_breaker::MainMenu(config, on_play, on_quit);
 
   // The component should be able to render without crashing.
   (void)component->Render();
@@ -21,8 +26,20 @@ TEST_CASE("MainMenu", "[coverage]") {
 
   SECTION("Player select shop") {
     component->OnEvent(Event::ArrowRight);
-    REQUIRE(component->OnEvent(Event::ArrowDown) == false);
+    REQUIRE(component->OnEvent(Event::ArrowDown) == true);
     REQUIRE(quit == false);
+
+    // Buy something successfully:
+    REQUIRE(component->OnEvent(Event::Return) == true);
+    REQUIRE(quit == false);
+    REQUIRE(config.balls == 10);
+    REQUIRE(config.coins == 0);
+
+    // Buy something unsuccessfully:
+    REQUIRE(component->OnEvent(Event::Return) == true);
+    REQUIRE(quit == false);
+    REQUIRE(config.balls == 10);
+    REQUIRE(config.coins == 0);
   }
 
   SECTION("Player select quit") {

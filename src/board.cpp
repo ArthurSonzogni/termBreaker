@@ -122,6 +122,20 @@ bool Board::OnEvent(ftxui::Event event) {
 }
 
 void Board::Step() {
+  // Win condition:
+  if (bricks_.size() == 0) {
+    win_();
+    return;
+  }
+
+  // Lose condition:
+  for (const auto& brick : bricks_) {
+    if (brick->Up() <= 2) {
+      lose_();
+      return;
+    }
+  }
+
   // Evolve the worlds using Box2D.
   step_++;
   float timeStep = 1.0f / 60.0f;  // NOLINT

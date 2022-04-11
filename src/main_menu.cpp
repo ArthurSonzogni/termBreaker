@@ -1,6 +1,7 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/dom/elements.hpp>
 #include "logo.hpp"
+#include "board.hpp"
 
 namespace term_breaker {
 
@@ -82,8 +83,37 @@ Component PlayTab(std::function<void(int)> play) {
   return Make<Impl>(play);
 }
 
-Component ShopTab() {
-  return Renderer([&] { return text("coucou"); });
+Component ShopTab(BoardConfig& config) {
+  int cost = (1 << (config.balls / 5)) * 1000;
+
+  auto button = Button("Buy 5 balls", [&, cost] {
+    if (config.coins >= cost) {
+      config.coins -= cost;
+      config.balls += 5;
+    }
+  });
+
+  return Renderer(button, [&, button, cost] {
+    auto description = vbox({
+        text("balls: " + std::to_string(config.balls)),
+        text("coins: " + std::to_string(config.coins)),
+        text("cost 5 balls: " + std::to_string(cost) + " coins"),
+    });
+
+    description |= border;
+
+    if (config.coins < cost) {
+      return vbox({
+          description,
+          text("You don't have enough coins"),
+      });
+    } else {
+      return vbox({
+          description,
+          button->Render(),
+      });
+    }
+  });
 }
 
 Component QuitTab(std::function<void()> quit) {
@@ -99,7 +129,9 @@ Element MainMenuDecorator(Element element) {
 
 }
 
-Component MainMenu(std::function<void(int)> play, std::function<void()> quit) {
+Component MainMenu(BoardConfig& config,
+                   std::function<void(int)> play,
+                   std::function<void()> quit) {
   static const std::vector<std::string> tab_entries_ = {
       "Play",
       "Shop",
@@ -109,14 +141,18 @@ Component MainMenu(std::function<void(int)> play, std::function<void()> quit) {
   class Impl : public ComponentBase {
    private:
     int tab_index_ = 0;
+    BoardConfig& config_;
 
    public:
-    Impl(std::function<void(int)> play, std::function<void()> quit) {
+    Impl(BoardConfig& config,
+         std::function<void(int)> play,
+         std::function<void()> quit)
+        : config_(config) {
       auto menu = Menu(&tab_entries_, &tab_index_, CustomMenuOption());
       auto tab_content = Container::Tab(
           {
               PlayTab(play),
-              ShopTab(),
+              ShopTab(config_),
               QuitTab(quit),
           },
           &tab_index_);
@@ -129,7 +165,7 @@ Component MainMenu(std::function<void(int)> play, std::function<void()> quit) {
     }
   };
 
-  return Make<Impl>(std::move(play), std::move(quit));
+  return Make<Impl>(config, std::move(play), std::move(quit));
 }
 
 }  // namespace term_breaker

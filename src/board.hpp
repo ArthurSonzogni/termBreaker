@@ -23,15 +23,7 @@ namespace term_breaker {
 struct BoardConfig {
   int balls = 0;
   int difficulty = 0;
-
-  bool buy_item_1 = false;
-  bool buy_item_2 = false;
-  bool buy_item_3 = false;
-  bool buy_item_4 = false;
-  bool buy_item_5 = false;
-  bool buy_item_6 = false;
-  bool buy_item_7 = false;
-  bool buy_item_8 = false;
+  int coins = 0;
 };
 
 class Board {

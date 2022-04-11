@@ -15,7 +15,7 @@ TEST_CASE("Intro return after pressing enter", "[component]") {
   (void)component->Render();
 
   SECTION("Using arrow keys to select the other button if any") {
-    REQUIRE(component->OnEvent(Event::ArrowRight) == true);
+    component->OnEvent(Event::ArrowRight);
   }
 
   // The component should be able to render without crashing.
