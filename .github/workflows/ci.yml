@@ -44,6 +44,12 @@ jobs:
           - os: windows
             compiler: gcc
 
+          # Process aborted? Why?
+          - os: macos-latest
+            compiler: llvm
+            build_type: Release
+            developer_mode: ON
+
         include:
           # Add appropriate variables for gcov version required. This will
           # intentionally break if you try to use a compiler that does not have
