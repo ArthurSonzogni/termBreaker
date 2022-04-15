@@ -92,11 +92,10 @@ endif()
 FetchContent_MakeAvailable(_project_options)
 include(${_project_options_SOURCE_DIR}/Index.cmake)
 
-project(
-  termRider
+project(TermBreaker
   VERSION 0.0.4
   DESCRIPTION ""
-  HOMEPAGE_URL "https://github.com/ArthurSonzogni/termRider"
+  HOMEPAGE_URL "https://github.com/ArthurSonzogni/termBreaker"
   LANGUAGES CXX)
 
 # Note: by default ENABLE_DEVELOPER_MODE is True
@@ -250,8 +249,7 @@ endif()
 # set the startup project for the "play" button in MSVC
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT termBreaker)
 
-install(TARGETS termBreaker RUNTIME DESTINATION bin)
-install(DIRECTORY resources DESTINATION share/temrBreaker)
+install(DIRECTORY resources DESTINATION share/termBreaker)
 
 # Add other targets that you want installed here, be default we just package the one executable
 # we know we want to ship

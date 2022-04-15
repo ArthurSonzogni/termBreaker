@@ -83,37 +83,39 @@ Component PlayTab(std::function<void(int)> play) {
   return Make<Impl>(play);
 }
 
-Component ShopTab(BoardConfig& config) {
-  int cost = (1 << (config.balls / 5)) * 1000;
+int BallCost(BoardConfig& config) {
+  return (1 << (config.balls / 5)) * 1000;
+}
 
-  auto button = Button("Buy 5 balls", [&, cost] {
-    if (config.coins >= cost) {
-      config.coins -= cost;
+Component ShopTab(BoardConfig& config) {
+  auto button = Button("Buy 5 balls", [&] {
+    if (config.coins >= BallCost(config)) {
+      config.coins -= BallCost(config);
       config.balls += 5;
     }
   });
 
-  return Renderer(button, [&, button, cost] {
+  return button | [&](Element button_element) {
     auto description = vbox({
         text("balls: " + std::to_string(config.balls)),
         text("coins: " + std::to_string(config.coins)),
-        text("cost 5 balls: " + std::to_string(cost) + " coins"),
+        text("cost 5 balls: " + std::to_string(BallCost(config)) + " coins"),
     });
 
     description |= border;
 
-    if (config.coins < cost) {
+    if (config.coins < BallCost(config)) {
       return vbox({
           description,
           text("You don't have enough coins"),
       });
-    } else {
-      return vbox({
-          description,
-          button->Render(),
-      });
     }
-  });
+
+    return vbox({
+        description,
+        button_element,
+    });
+  };
 }
 
 Component QuitTab(std::function<void()> quit) {
