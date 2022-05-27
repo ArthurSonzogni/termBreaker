@@ -215,13 +215,16 @@ if (EMSCRIPTEN)
 
   foreach(file
       "index.html"
-      "run_webassembly.py")
-    configure_file(${file} ${file})
+      "run_webassembly.py"
+      "resources/background.ogg"
+      "resources/bounce.wav"
+      "resources/termBreaker")
+    configure_file(${file} ${file} COPYONLY)
   endforeach(file)
 
   # Make the resources files available to the browser.
-  set_property(TARGET termBreaker
-    APPEND_STRING PROPERTY LINK_FLAGS "--preload-file ../resources/")
+  set_property(TARGET termBreaker APPEND_STRING PROPERTY LINK_FLAGS
+    "--preload-file ${CMAKE_CURRENT_BINARY_DIR}/resources/@/resources/")
 endif()
 
 if (ENABLE_AUDIO)
