@@ -34,7 +34,7 @@ class Board {
 
   bool OnEvent(ftxui::Event event);
   void Step();
-  ftxui::Element Draw(ftxui::Element back_btn, ftxui::Element quit_btn) const;
+  ftxui::Element Draw(ftxui::Element back_btn, ftxui::Element quit_btn);
 
  private:
   void InitializeBricks();
@@ -62,6 +62,8 @@ class Board {
   bool is_shooting_ = false;
   int remaining_balls_to_shoot_ = 0;
   b2Vec2 shooting_direction_;
+
+  ftxui::Box box_;
 };
 
 } // namespace term_breaker

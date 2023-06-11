@@ -102,8 +102,8 @@ bool Board::OnEvent(ftxui::Event event) {
     return false;
   }
 
-  mouse_x_ = (event.mouse().x - 1) * 2;
-  mouse_y_ = (event.mouse().y - 1) * 4;
+  mouse_x_ = event.mouse().x - box_.x_min;
+  mouse_y_ = event.mouse().y - box_.y_min;
 
   // Ignore the first few events, to avoid miss click.
   if (step_ < 30)
@@ -211,7 +211,7 @@ void Board::MoveUp() {
 }
 
 ftxui::Element Board::Draw(ftxui::Element back_btn,
-                           ftxui::Element quit_btn) const {
+                           ftxui::Element quit_btn) {
   using namespace ftxui;
   auto c = Canvas(g_board_width, g_board_height);
 
@@ -228,7 +228,7 @@ ftxui::Element Board::Draw(ftxui::Element back_btn,
                                 "/" + std::to_string(config_.balls);
 
   auto frame = hbox({
-      canvas(std::move(c)),
+      canvas(std::move(c)) | reflect(box_),
       separator(),
       vbox({
           window(text("bricks:"), text(std::to_string(bricks_.size()))),
@@ -252,6 +252,7 @@ void Board::DrawShootingLine(ftxui::Canvas& c) const {
 
   b2Vec2 position = ShootPosition();
   b2Vec2 speed = ShootSpeed();
+
   float timeStep = 1.0f / 60.0f;  // NOLINT
 
   const float ball_friction = 0.5F;
@@ -295,7 +296,7 @@ b2Vec2 Board::ShootSpeed() const {
   const b2Vec2 position = ShootPosition();
   const auto mouse_x = static_cast<float>(mouse_x_);
   const auto mouse_y = static_cast<float>(mouse_y_);
-  const b2Vec2 target(mouse_x, mouse_y);
+  const b2Vec2 target(mouse_x*2, mouse_y*4);
   b2Vec2 speed = target - position;
   speed.Normalize();
   const float speed_norm = 100.F;
