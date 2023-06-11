@@ -23,6 +23,12 @@ parts:
     source-depth: 1
     build-packages:
       - build-essential
+      - libglu1-mesa-dev
+      - libpulse-dev
+      - xorg-dev
+      - libgl1-mesa-glx
+      - libopengl0
+      - libpulse0
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DCMAKE_BUILD_TYPE=Release
