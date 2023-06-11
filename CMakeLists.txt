@@ -3,6 +3,16 @@ cmake_minimum_required(VERSION 3.16)
 option(ENABLE_TESTING "Enable the tests" ON)
 option(ENABLE_FUZZING "Enable the fuzz tests" OFF)
 
+# Note: by default ENABLE_DEVELOPER_MODE is True
+# This means that all analysis (sanitizers, static analysis)
+# is enabled and all warnings are treated as errors
+# if you want to switch this behavior, change TRUE to FALSE
+set(ENABLE_DEVELOPER_MODE FALSE CACHE BOOL "Enable 'developer mode'")
+
+# Change this to false if you want to disable warnings_as_errors in developer
+# mode
+set(OPT_WARNINGS_AS_ERRORS_DEVELOPER_DEFAULT FALSE)
+
 # The audio backend do not work with ASAN and seems to be working only on Linux
 # and WebAssembly. Sorry!
 if(UNIX AND NOT APPLE)
@@ -10,15 +20,6 @@ if(UNIX AND NOT APPLE)
 else()
   option(ENABLE_AUDIO "Enable audio" OFF)
 endif()
-
-# Not ideal to use this global variable, but necessary to make sure
-# that tooling and projects use the same version
-set(CMAKE_CXX_STANDARD 17)
-
-# strongly encouraged to enable this globally to avoid conflicts between
-# -Wpedantic being enabled and -std=c++20 and -std=gnu++20 for example
-# when compiling with PCH enabled
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Setup dependencies:
 include(FetchContent)
@@ -33,13 +34,13 @@ FetchContent_Declare(_project_options
 
 FetchContent_Declare(ftxui
   GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
-  GIT_TAG aebde943523bb75da79ba45eb5b2e88d39a620e1
+  GIT_TAG v4.1.1
   GIT_PROGRESS ON
 )
 
 FetchContent_Declare(box2d
   GIT_REPOSITORY https://github.com/erincatto/box2d.git
-  GIT_TAG v2.4.1
+  GIT_TAG 411acc32eb6d4f2e96fc70ddbdf01fe5f9b16230
   GIT_PROGRESS ON
 )
 
@@ -47,7 +48,7 @@ FetchContent_Declare(box2d
 # TODO(arthursonzogni): Find something lightweight to replace it.
 FetchContent_Declare(smk
   GIT_REPOSITORY https://github.com/ArthurSonzogni/smk
-  GIT_TAG 65ff24ee244f83e019bf6fb36322c070dbf18875
+  GIT_TAG d8604bd4414d2257f02cc68891db1cb5ac7475e8
   GIT_PROGRESS ON
 )
 
@@ -75,7 +76,6 @@ endif()
 
 if (EMSCRIPTEN)
   set(ENABLE_TESTING CACHE INTERNAL "")
-  set(ENABLE_DEVELOPER_MODE FALSE CACHE BOOL "Enable 'developer mode'")
   string(APPEND CMAKE_CXX_FLAGS " -s USE_PTHREADS")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -s ASYNCIFY")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -s PROXY_TO_PTHREAD")
@@ -97,16 +97,6 @@ project(TermBreaker
   DESCRIPTION ""
   HOMEPAGE_URL "https://github.com/ArthurSonzogni/termBreaker"
   LANGUAGES CXX)
-
-# Note: by default ENABLE_DEVELOPER_MODE is True
-# This means that all analysis (sanitizers, static analysis)
-# is enabled and all warnings are treated as errors
-# if you want to switch this behavior, change TRUE to FALSE
-set(ENABLE_DEVELOPER_MODE TRUE CACHE BOOL "Enable 'developer mode'")
-
-# Change this to false if you want to disable warnings_as_errors in developer
-# mode
-set(OPT_WARNINGS_AS_ERRORS_DEVELOPER_DEFAULT TRUE)
 
 find_package(Threads)
 
@@ -145,7 +135,6 @@ if (ENABLE_AUDIO)
   target_compile_definitions(termBreakerLib PUBLIC ENABLE_AUDIO)
   target_link_system_libraries(termBreakerLib PRIVATE smk::smk)
 endif()
-
 
 set(GIT_SHA "Unknown" CACHE STRING "SHA this build was generated from")
 string(SUBSTRING "${GIT_SHA}" 0 8 GIT_SHORT_SHA)
@@ -211,13 +200,15 @@ target_link_system_libraries(termBreaker PRIVATE termBreakerLib)
 
 
 if (EMSCRIPTEN)
-  target_link_options(termBreaker PUBLIC "SHELL: -s TOTAL_MEMORY=67108864")
+  target_link_options(termBreaker PUBLIC "SHELL: -s TOTAL_MEMORY=256MB")
+  target_compile_options(termBreaker PUBLIC "-gsource-map")
+  target_compile_options(termBreaker PUBLIC "--source-map-base=\"https://localhost:8888/\"")
 
   foreach(file
       "index.html"
       "run_webassembly.py"
       "resources/background.ogg"
-      "resources/bounce.wav"
+      "resources/bounce.ogg"
       "resources/termBreaker")
     configure_file(${file} ${file} COPYONLY)
   endforeach(file)

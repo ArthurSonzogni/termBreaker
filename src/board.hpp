@@ -44,12 +44,12 @@ class Board {
   void MoveUp();
   void MoveBricks();
 
+  std::unique_ptr<b2World> world_;
   const BoardConfig config_;
 
   std::function<void()> win_;
   std::function<void()> lose_;
 
-  b2World world_;
   ContactListener contact_listener_;
 
   std::vector<Ball> balls_;

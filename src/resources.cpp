@@ -80,7 +80,7 @@ void PlaySound(const smk::SoundBuffer& snd, float volume) {
 }  // namespace
 
 void LoadResources() {
-  sb_boing = smk::SoundBuffer(ResourcePath() + "/bounce.wav");
+  sb_boing = smk::SoundBuffer(ResourcePath() + "/bounce.ogg");
   sb_background = smk::SoundBuffer(ResourcePath() + "/background.ogg");
 }
 

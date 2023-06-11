@@ -2,6 +2,7 @@
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/event.hpp>
+#include <ftxui/component/loop.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <iostream>
@@ -45,25 +46,20 @@ void ExecuteBoard(BoardConfig config,
     lose();
     exit();
   };
+
   Board board(config, on_win, on_lose);
 
-  // This thread exists to make sure that the event queue has an event to
-  // process at approximately a rate of 60 FPS
-  std::atomic<bool> refresh_ui_continue = true;
-  std::thread refresh_ui([&] {
-    while (refresh_ui_continue) {
-      using namespace std::chrono_literals;
-      const auto refresh_time = 1.0s / 60.0;
-      std::this_thread::sleep_for(refresh_time);
-      screen.PostEvent(Event::Custom);
-    }
-  });
-
   auto component = GameScreen(board, on_lose, on_quit);
-  screen.Loop(component);
 
-  refresh_ui_continue = false;
-  refresh_ui.join();
+  Loop loop(&screen, component);
+
+  while (!loop.HasQuitted()) {
+    loop.RunOnce();
+    using namespace std::chrono_literals;
+    const auto refresh_time = 1.0s / 60.0;
+    std::this_thread::sleep_for(refresh_time);
+    screen.PostEvent(Event::Custom);
+  }
 }
 
 void ExecuteWinScreen(int coins) {

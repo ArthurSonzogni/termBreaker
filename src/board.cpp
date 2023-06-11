@@ -26,6 +26,7 @@ struct CollisionCallback : public b2QueryCallback {
   bool collided = false;
 };
 
+// static
 b2Vec2 Gravity() {
   const float gravity = 140.f;
   return b2Vec2(0.F, gravity);
@@ -36,8 +37,9 @@ b2Vec2 Gravity() {
 Board::Board(BoardConfig config,
              std::function<void()> win,
              std::function<void()> lose)
-    : config_(config), win_(win), lose_(lose), world_(Gravity()) {
-  world_.SetContactListener(&contact_listener_);
+    : config_(config), win_(win), lose_(lose) {
+  world_ = std::make_unique<b2World>(Gravity());
+  world_->SetContactListener(&contact_listener_);
 
   InitializeBricks();
   PlayBackgroundMusic();
@@ -78,12 +80,12 @@ void Board::InitializeBricks() {
       continue;
 
     CollisionCallback callback;
-    world_.QueryAABB(&callback, aabb);
+    world_->QueryAABB(&callback, aabb);
     if (callback.collided) {
       continue;
     }
 
-    bricks_.push_back(std::make_unique<BrickBase>(world_, x, y, half_width,
+    bricks_.push_back(std::make_unique<BrickBase>(*world_, x, y, half_width,
                                                   half_height, counter));
     const size_t bricks = 100;
     if (bricks_.size() >= bricks) {
@@ -122,6 +124,7 @@ bool Board::OnEvent(ftxui::Event event) {
 }
 
 void Board::Step() {
+
   // Win condition:
   if (bricks_.size() == 0) {
     win_();
@@ -141,7 +144,7 @@ void Board::Step() {
   float timeStep = 1.0f / 60.0f;  // NOLINT
   int32 velocityIterations = 6;   // NOLINT
   int32 positionIterations = 2;   // NOLINT
-  world_.Step(timeStep, velocityIterations, positionIterations);
+  world_->Step(timeStep, velocityIterations, positionIterations);
 
   for (auto& brick : bricks_) {
     brick->Step();
@@ -164,7 +167,7 @@ void Board::Step() {
       remaining_balls_to_shoot_ >= 1) {
     remaining_balls_to_shoot_--;
     const float radius = 4.F;
-    balls_.push_back(std::make_unique<BallBase>(world_, ShootPosition(),
+    balls_.push_back(std::make_unique<BallBase>(*world_, ShootPosition(),
                                                 shooting_direction_, radius));
   }
 
