@@ -25,11 +25,6 @@ Element IntroDecorator(Element buttons) {
         paragraphAlignCenter(
             "More info on https://github.com/ArthurSonzogni/term-breaker"),
         filler(),
-#if !defined(__EMSCRIPTEN__)
-        paragraphAlignCenter(
-            "Due to the audio library used, you have to decide whether to "
-            "support sounds or pass the ASAN checks"),
-#endif
   });
 
   auto document = vbox({
@@ -64,7 +59,7 @@ ftxui::Component Intro(bool* enable_audio, std::function<void()> quit) {
 
   auto buttons = Container::Horizontal({
       Button("Start with Audio", start_with_audio, btn_option_audio),
-      Button("Start with ASAN", start_without_audio, btn_option_asan),
+      Button("Start without Audio", start_without_audio, btn_option_asan),
   });
 #else
   *enable_audio = false;

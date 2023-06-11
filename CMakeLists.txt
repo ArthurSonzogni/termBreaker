@@ -15,7 +15,7 @@ set(OPT_WARNINGS_AS_ERRORS_DEVELOPER_DEFAULT FALSE)
 
 # The audio backend do not work with ASAN and seems to be working only on Linux
 # and WebAssembly. Sorry!
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT ENABLE_DEVELOPER_MODE)
   option(ENABLE_AUDIO "Enable audio" ON)
 else()
   option(ENABLE_AUDIO "Enable audio" OFF)

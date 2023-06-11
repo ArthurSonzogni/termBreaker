@@ -49,7 +49,7 @@ void ExecuteBoard(BoardConfig config,
 
   Board board(config, on_win, on_lose);
 
-  auto component = GameScreen(board, on_lose, on_quit);
+  auto component = GameScreen(board, on_lose, on_quit) | center;
 
   Loop loop(&screen, component);
 
