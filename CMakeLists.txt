@@ -200,7 +200,7 @@ target_link_system_libraries(termBreaker PRIVATE termBreakerLib)
 
 
 if (EMSCRIPTEN)
-  target_link_options(termBreaker PUBLIC "SHELL: -s TOTAL_MEMORY=256MB")
+  target_link_options(termBreaker PUBLIC "SHELL: -s TOTAL_MEMORY=32MB")
   target_compile_options(termBreaker PUBLIC "-gsource-map")
   target_compile_options(termBreaker PUBLIC "--source-map-base=\"https://localhost:8888/\"")
 
