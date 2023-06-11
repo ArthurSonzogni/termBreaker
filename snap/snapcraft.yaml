@@ -10,14 +10,14 @@ confinement: strict
 base: core20
 
 apps:
-  termBreaker:
+  termbreaker:
     command: usr/bin/termBreaker
     plugs:
     - audio-playback
     - pulseaudio
 
 parts:
-  termBreaker:
+  termbreaker:
     plugin: cmake
     source: https://github.com/ArthurSonzogni/termBreaker
     source-type: git
