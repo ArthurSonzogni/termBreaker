@@ -10,13 +10,13 @@ confinement: strict
 base: core20
 
 apps:
-  git-tui:
-    command: /usr/bin/termBreaker
+  termBreaker:
+    command: usr/bin/termBreaker
     plugs:
       - home
 
 parts:
-  git-tui:
+  termBreaker:
     plugin: cmake
     source: https://github.com/ArthurSonzogni/termBreaker
     source-type: git
@@ -36,5 +36,5 @@ parts:
       - git
 
 passthrough:
-  title: git-tui
+  title: termBreaker
   license: MIT
