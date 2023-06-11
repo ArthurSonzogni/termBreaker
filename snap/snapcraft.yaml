@@ -1,0 +1,34 @@
+name: termbreaker
+version: 1.0.0
+summary: TermBreaker is an inverted break-out game.
+description: TermBreaker is an inverted break-out game. You have to throw a set
+             of balls from the top. Goal is to erase all the bricks before
+             getting submerged.
+
+grade: stable
+confinement: strict
+base: core20
+
+apps:
+  git-tui:
+    command: /usr/bin/termBreaker
+    plugs:
+      - home
+
+parts:
+  git-tui:
+    plugin: cmake
+    source: https://github.com/ArthurSonzogni/termBreaker
+    source-type: git
+    source-depth: 1
+    build-packages:
+      - build-essential
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_BUILD_TYPE=Release
+    stage-packages:
+      - git
+
+passthrough:
+  title: git-tui
+  license: MIT
