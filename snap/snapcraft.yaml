@@ -13,7 +13,8 @@ apps:
   termBreaker:
     command: usr/bin/termBreaker
     plugs:
-      - home
+    - audio-playback
+    - pulseaudio
 
 parts:
   termBreaker:
